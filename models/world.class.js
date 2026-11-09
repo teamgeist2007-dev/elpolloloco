@@ -13,15 +13,25 @@ class World {
         this.keyboard = keyboard;
         this.draw();
         this.setWorld();
+        this.checkCollisions();
     }
 
     setWorld() {
         this.character.world = this;
     }
 
+    checkCollisions() {
+        setInterval(() => {
+            this.level.enemies.forEach((enemy) => {
+                if (this.character.isColliding(enemy)) {
+                    console.log('Collision with Character', enemy);
+                }
+            });
+        }, 200);
+    }
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.ctx.translate(this.camera_x, 0);
 
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -43,24 +53,30 @@ class World {
         });
     }
 
-    addToMap(object) {
-        const { img, x, y, width, height } = object;
-
-        if (img.complete && img.naturalWidth > 0) {
-            let drawX = x;
-
-            if (object.otherDiretion) {
-                this.ctx.save();
-                this.ctx.translate(x + width, 0);
-                this.ctx.scale(-1, 1);
-                drawX = 0;
+    addToMap(mo) {
+        if (mo.img.complete && mo.img.naturalWidth > 0) {
+            if (mo.otherDiretion) {
+                this.flipImage(mo);
             }
 
-            this.ctx.drawImage(img, drawX, y, width, height);
+            mo.draw(this.ctx);
+            mo.drawFrame(this.ctx);
 
-            if (object.otherDiretion) {
-                this.ctx.restore();
+            if (mo.otherDiretion) {
+                this.flipImageBack(mo);
             }
         }
+    }
+
+    flipImage(mo) {
+        this.ctx.save();
+        this.ctx.translate(mo.width, 0);
+        this.ctx.scale(-1, 1);
+        mo.x = mo.x * -1;
+    }
+
+    flipImageBack(mo) {
+        mo.x = mo.x * -1;
+        this.ctx.restore();
     }
 }
