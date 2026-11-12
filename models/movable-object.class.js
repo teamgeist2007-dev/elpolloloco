@@ -7,7 +7,7 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
 
     applyGravity() {
-        setInterval(() => {
+        return setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
@@ -23,7 +23,6 @@ class MovableObject extends DrawableObject {
         }
     }
 
-    // character.isColliding(chicken);
     isColliding(mo) {
         return this.x + this.width > mo.x &&
             this.y + this.height > mo.y &&
@@ -31,8 +30,8 @@ class MovableObject extends DrawableObject {
             this.y < mo.y + mo.height;
     }
 
-    hit() {
-        this.energy -= 5;
+    hit(damage = 5) {
+        this.energy -= damage;
 
         if (this.energy < 0) {
             this.energy = 0;

@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" href="style.css">
-
     <title>El Pollo Loco</title>
 
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
+    <script src="models/collectible-object.class.js"></script>
     <script src="models/throwable-object.class.js"></script>
     <script src="models/character.class.js"></script>
     <script src="models/chicken.class.js"></script>
@@ -28,7 +27,23 @@
 <body onload="init()">
     <h1>El Pollo Loco</h1>
 
-    <canvas id="canvas" width="720" height="480"></canvas>
+    <section id="game-container">
+        <canvas id="canvas" width="720" height="480"></canvas>
+
+        <div class="mobile-controls">
+            <div>
+                <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
+                <button id="btnRight" type="button" aria-label="Nach rechts laufen">›</button>
+            </div>
+
+            <div>
+                <button id="btnJump" type="button" aria-label="Springen">↑</button>
+                <button id="btnThrow" type="button" aria-label="Flasche werfen">
+                    <img src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                </button>
+            </div>
+        </div>
+    </section>
 </body>
 
 </html>

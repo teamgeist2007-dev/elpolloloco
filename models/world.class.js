@@ -9,6 +9,17 @@ class World {
     statusBar = new StatusBar();
     throwableObjects = [];
 
+    coins = 0;
+    bottles = 0;
+    coinIcon = this.createInventoryIcon(
+        'img/7_statusbars/3_icons/icon_coin.png',
+        260
+    );
+    bottleIcon = this.createInventoryIcon(
+        'img/7_statusbars/3_icons/icon_salsa_bottle.png',
+        350
+    );
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -30,13 +41,73 @@ class World {
     }
 
     checkThrowObjects() {
-        if (this.keyboard.D) {
+        if (this.keyboard.D && this.bottles > 0) {
             let bottle = new ThrowableObject(
                 this.character.x + 100,
                 this.character.y + 100
             );
             this.throwableObjects.push(bottle);
+            this.bottles--;
         }
+    }
+
+    checkBottleCollisions() {
+        this.throwableObjects = this.throwableObjects.filter((bottle) => {
+            const enemy = this.level.enemies.find((enemy) =>
+                this.bottleHitsEnemy(bottle, enemy)
+            );
+
+            if (enemy) this.hitEnemy(enemy);
+            if (!enemy && bottle.y < this.canvas.height) return true;
+
+            bottle.stop();
+            return false;
+        });
+    }
+
+    bottleHitsEnemy(bottle, enemy) {
+        const side = enemy instanceof Endboss ? 25 : 5;
+        const top = enemy instanceof Endboss ? 100 : 5;
+
+        return bottle.x + bottle.width - 12 > enemy.x + side &&
+            bottle.x + 12 < enemy.x + enemy.width - side &&
+            bottle.y + bottle.height - 4 > enemy.y + top &&
+            bottle.y + 4 < enemy.y + enemy.height;
+    }
+
+    hitEnemy(enemy) {
+        enemy.hit(enemy instanceof Endboss ? 20 : 100);
+
+        if (enemy.isDead()) {
+            enemy.stop?.();
+            this.level.enemies = this.level.enemies.filter((item) => item !== enemy);
+        }
+    }
+
+    collectItems() {
+        this.level.coins = this.level.coins.filter((coin) => {
+            if (!this.touchesCollectible(coin)) return true;
+
+            this.coins++;
+            return false;
+        });
+
+        this.level.bottles = this.level.bottles.filter((bottle) => {
+            if (!this.touchesCollectible(bottle)) return true;
+
+            this.bottles++;
+            return false;
+        });
+    }
+
+    touchesCollectible(item) {
+        const character = this.character;
+
+        // Die transparenten Bildränder zählen beim Einsammeln nicht mit.
+        return character.x + character.width - 12 > item.x + 20 &&
+            character.x + 12 < item.x + item.width - 20 &&
+            character.y + character.height > item.y + 20 &&
+            character.y + 100 < item.y + item.height - 12;
     }
 
     checkCollisions() {
@@ -48,7 +119,47 @@ class World {
         });
     }
 
+    createInventoryIcon(path, x) {
+        const icon = new DrawableObject();
+        icon.loadImage(path);
+        icon.x = x;
+        icon.y = 10;
+        icon.width = 40;
+        icon.height = 40;
+        return icon;
+    }
+
+    drawInventory() {
+        this.ctx.save();
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+
+        this.drawInventoryItem(this.coinIcon, this.coins);
+        this.drawInventoryItem(this.bottleIcon, this.bottles);
+
+        this.ctx.restore();
+    }
+
+    drawInventoryItem(icon, count) {
+        this.ctx.beginPath();
+        this.ctx.roundRect(icon.x - 4, icon.y, 80, icon.height, 20);
+        this.ctx.fillStyle = 'rgba(43, 26, 18, 0.85)';
+        this.ctx.fill();
+
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = '#e6b95c';
+        this.ctx.stroke();
+
+        this.addToMap(icon);
+
+        this.ctx.fillStyle = '#ffda78';
+        this.ctx.fillText(count, icon.x + 55, icon.y + icon.height / 2);
+    }
+
     draw() {
+        this.collectItems();
+        this.checkBottleCollisions();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.translate(this.camera_x, 0);
@@ -57,11 +168,14 @@ class World {
         this.ctx.translate(-this.camera_x, 0);
         // ------ Space for fixed objects ------
         this.addToMap(this.statusBar);
+        this.drawInventory();
         this.ctx.translate(this.camera_x, 0);
 
         this.addToMap(this.character);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.level.coins);
+        this.addObjectsToMap(this.level.bottles);
         this.addObjectsToMap(this.throwableObjects);
 
         this.ctx.translate(-this.camera_x, 0);
