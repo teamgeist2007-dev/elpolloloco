@@ -8,17 +8,13 @@ class World {
     camera_x = 0;
     statusBar = new StatusBar();
     throwableObjects = [];
+    previousCharacterBottom;
 
     coins = 0;
     bottles = 0;
-    coinIcon = this.createInventoryIcon(
-        'img/7_statusbars/3_icons/icon_coin.png',
-        260
-    );
-    bottleIcon = this.createInventoryIcon(
-        'img/7_statusbars/3_icons/icon_salsa_bottle.png',
-        350
-    );
+
+    coinIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_coin.png', 260);
+    bottleIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_salsa_bottle.png', 350);
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -46,6 +42,7 @@ class World {
                 this.character.x + 100,
                 this.character.y + 100
             );
+
             this.throwableObjects.push(bottle);
             this.bottles--;
         }
@@ -110,7 +107,28 @@ class World {
             character.y + 100 < item.y + item.height - 12;
     }
 
+    checkChickenStomps() {
+        const character = this.character;
+        const bottom = character.y + character.height;
+        const previousBottom = this.previousCharacterBottom ?? bottom;
+        this.previousCharacterBottom = bottom;
+
+        if (character.isDead() || character.speedY >= 0 || bottom <= previousBottom) return;
+
+        const chicken = this.level.enemies.find((enemy) =>
+            enemy instanceof Chicken &&
+            previousBottom <= enemy.y &&
+            bottom >= enemy.y &&
+            character.x + character.width - 12 > enemy.x + 5 &&
+            character.x + 12 < enemy.x + enemy.width - 5
+        );
+
+        if (chicken) this.hitEnemy(chicken);
+    }
+
     checkCollisions() {
+        this.checkChickenStomps();
+
         this.level.enemies.forEach((enemy) => {
             if (this.character.isColliding(enemy)) {
                 this.character.hit();
@@ -146,39 +164,43 @@ class World {
         this.ctx.roundRect(icon.x - 4, icon.y, 80, icon.height, 20);
         this.ctx.fillStyle = 'rgba(43, 26, 18, 0.85)';
         this.ctx.fill();
-
         this.ctx.lineWidth = 1;
         this.ctx.strokeStyle = '#e6b95c';
         this.ctx.stroke();
 
         this.addToMap(icon);
-
         this.ctx.fillStyle = '#ffda78';
         this.ctx.fillText(count, icon.x + 55, icon.y + icon.height / 2);
     }
 
+    drawEndbossHealthBar() {
+        const endboss = this.level.enemies.find((enemy) => enemy instanceof Endboss);
+
+        if (endboss?.isChasing) {
+            endboss.drawHealthBar(this.ctx);
+        }
+    }
+
     draw() {
+        this.checkChickenStomps();
         this.collectItems();
         this.checkBottleCollisions();
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
-
-        this.ctx.translate(-this.camera_x, 0);
-        // ------ Space for fixed objects ------
-        this.addToMap(this.statusBar);
-        this.drawInventory();
-        this.ctx.translate(this.camera_x, 0);
-
         this.addToMap(this.character);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.coins);
         this.addObjectsToMap(this.level.bottles);
         this.addObjectsToMap(this.throwableObjects);
-
         this.ctx.translate(-this.camera_x, 0);
+
+        // ------ Space for fixed objects ------
+        this.addToMap(this.statusBar);
+        this.drawInventory();
+        this.drawEndbossHealthBar();
 
         // Draw() wird immer wieder aufgerufen.
         const self = this;
@@ -200,7 +222,6 @@ class World {
             }
 
             mo.draw(this.ctx);
-            mo.drawFrame(this.ctx);
 
             if (mo.otherDiretion) {
                 this.flipImageBack(mo);

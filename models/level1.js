@@ -4,16 +4,34 @@ function initLevel() {
     const coinImage = 'img/8_coin/coin_1.png';
     const bottleImage = 'img/6_salsa_bottle/1_salsa_bottle_on_ground.png';
 
+    const clouds = [
+        [-140, 15],
+        [300, 55],
+        [740, 25],
+        [1180, 65],
+        [1620, 15],
+        [2060, 45],
+        [2500, 25]
+    ].map(([x, y]) => {
+        const cloud = new Cloud();
+        cloud.x = x;
+        cloud.y = y;
+        return cloud;
+    });
+
     level1 = new Level(
         [
             new Chicken(),
             new Chicken(),
             new Chicken(),
+            new Chicken(480, true),
+            new Chicken(840, true),
+            new Chicken(1240, true),
+            new Chicken(1650, true),
+            new Chicken(1950, true),
             new Endboss()
         ],
-        [
-            new Cloud()
-        ],
+        clouds,
         [
             new BackgroundObject('img/5_background/layers/air.png', -719),
             new BackgroundObject('img/5_background/layers/3_third_layer/2.png', -719),
