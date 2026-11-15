@@ -5,32 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="game-screen.css">
     <title>El Pollo Loco</title>
-
-    <style>
-        .keyboard-help {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 8px 16px;
-            margin: 8px 0 0;
-            padding: 10px 12px;
-            border-radius: 6px;
-            background-color: #302016;
-            color: #fff;
-            font: 600 16px/1.5 Arial, sans-serif;
-        }
-
-        .keyboard-help kbd {
-            display: inline-block;
-            padding: 0 6px;
-            border-radius: 4px;
-            background-color: #ffd27a;
-            color: #302016;
-            font: inherit;
-        }
-    </style>
 
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
@@ -47,13 +23,21 @@
     <script src="models/endboss.class.js"></script>
     <script src="models/level1.js"></script>
     <script src="js/game.js"></script>
+    <script defer src="js/game-screen.js"></script>
 </head>
 
-<body onload="init()">
+<body>
     <h1>El Pollo Loco</h1>
 
     <section id="game-container">
-        <canvas id="canvas" width="720" height="480"></canvas>
+        <div id="game-stage">
+            <canvas id="canvas" width="720" height="480"></canvas>
+
+            <div id="game-screen">
+                <img id="game-screen-image" src="img/startscreen/startScreen.png" alt="El Pollo Loco">
+                <button id="game-screen-button" type="button">Spiel starten</button>
+            </div>
+        </div>
 
         <div class="mobile-controls">
             <div>

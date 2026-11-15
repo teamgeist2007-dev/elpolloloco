@@ -10,6 +10,9 @@ class World {
     throwableObjects = [];
     previousCharacterBottom;
 
+    gameInterval;
+    gameFinished = false;
+
     coins = 0;
     bottles = 0;
 
@@ -30,10 +33,21 @@ class World {
     }
 
     run() {
-        setInterval(() => {
+        this.gameInterval = setInterval(() => {
             this.checkCollisions();
-            this.checkThrowObjects();
+
+            if (!this.gameFinished) {
+                this.checkThrowObjects();
+            }
         }, 200);
+    }
+
+    finishGame(won) {
+        if (this.gameFinished) return;
+
+        this.gameFinished = true;
+        clearInterval(this.gameInterval);
+        showGameResult(won);
     }
 
     checkThrowObjects() {
@@ -73,11 +87,16 @@ class World {
     }
 
     hitEnemy(enemy) {
-        enemy.hit(enemy instanceof Endboss ? 20 : 100);
+        const isEndboss = enemy instanceof Endboss;
+        enemy.hit(isEndboss ? 20 : 100);
 
         if (enemy.isDead()) {
             enemy.stop?.();
             this.level.enemies = this.level.enemies.filter((item) => item !== enemy);
+
+            if (isEndboss) {
+                this.finishGame(true);
+            }
         }
     }
 
@@ -129,12 +148,17 @@ class World {
     checkCollisions() {
         this.checkChickenStomps();
 
-        this.level.enemies.forEach((enemy) => {
+        for (const enemy of this.level.enemies) {
             if (this.character.isColliding(enemy)) {
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);
+
+                if (this.character.isDead()) {
+                    this.finishGame(false);
+                    return;
+                }
             }
-        });
+        }
     }
 
     createInventoryIcon(path, x) {
@@ -182,9 +206,14 @@ class World {
     }
 
     draw() {
+        if (this.gameFinished) return;
+
         this.checkChickenStomps();
         this.collectItems();
         this.checkBottleCollisions();
+
+        if (this.gameFinished) return;
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.translate(this.camera_x, 0);

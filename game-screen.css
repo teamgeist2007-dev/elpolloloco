@@ -1,0 +1,44 @@
+#game-stage {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+}
+
+#game-stage canvas {
+    display: block;
+}
+
+#game-screen {
+    position: absolute;
+    inset: 0;
+    background-color: #302016;
+}
+
+#game-screen-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#game-screen-button {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;
+    transform: translateX(-50%);
+    min-height: 44px;
+    padding: 6px 16px;
+    border: 2px solid #302016;
+    border-radius: 8px;
+    background-color: #ffd27a;
+    color: #302016;
+    font: 700 16px Arial, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#game-screen-button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
