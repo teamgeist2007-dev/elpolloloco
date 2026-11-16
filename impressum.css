@@ -1,0 +1,46 @@
+.impressum-page {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    margin: 0;
+    padding: 20px;
+    background: url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    color: #302016;
+    font-family: Arial, sans-serif;
+}
+
+.impressum-card {
+    box-sizing: border-box;
+    width: min(100%, 480px);
+    padding: clamp(24px, 6vw, 48px);
+    border-radius: 12px;
+    background-color: #fff3dd;
+    text-align: center;
+    font: 700 18px/1.6 Arial, sans-serif;
+    overflow-wrap: anywhere;
+}
+
+.impressum-card h1 {
+    margin: 0 0 20px;
+    font-size: clamp(32px, 6vw, 48px);
+    line-height: 1.1;
+}
+
+.impressum-card address {
+    font-style: normal;
+}
+
+.impressum-footer {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.impressum-link {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background-color: #302016;
+    color: #fff3dd;
+    font: 700 16px/1.5 Arial, sans-serif;
+}

@@ -1,65 +1,71 @@
 class World {
     character = new Character();
     level = level1;
-
-    canvas;
-    ctx;
-    keyboard;
     camera_x = 0;
     statusBar = new StatusBar();
     throwableObjects = [];
     previousCharacterBottom;
-
-    gameInterval;
     gameFinished = false;
-
     coins = 0;
     bottles = 0;
-
-    coinIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_coin.png', 260);
-    bottleIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_salsa_bottle.png', 350);
+    nextThrowAt = 0;
 
     constructor(canvas, keyboard) {
-        this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
-        this.draw();
-        this.setWorld();
-        this.run();
-    }
+        this.renderer = new WorldRenderer(this.ctx);
 
-    setWorld() {
         this.character.world = this;
-    }
-
-    run() {
-        this.gameInterval = setInterval(() => {
-            this.checkCollisions();
-
-            if (!this.gameFinished) {
-                this.checkThrowObjects();
-            }
-        }, 200);
+        gameAudio.startRound(this);
+        this.draw();
     }
 
     finishGame(won) {
         if (this.gameFinished) return;
 
         this.gameFinished = true;
-        clearInterval(this.gameInterval);
+        gameAudio.endRound();
         showGameResult(won);
     }
 
-    checkThrowObjects() {
-        if (this.keyboard.D && this.bottles > 0) {
-            let bottle = new ThrowableObject(
-                this.character.x + 100,
-                this.character.y + 100
-            );
+    draw() {
+        if (this.gameFinished) return;
 
-            this.throwableObjects.push(bottle);
-            this.bottles--;
+        this.checkCollisions();
+        if (this.gameFinished) return;
+
+        this.collectItems();
+        this.checkBottleCollisions();
+        if (this.gameFinished) return;
+
+        this.checkThrowObjects();
+        gameAudio.update(this);
+        this.renderer.draw(this);
+        requestAnimationFrame(() => this.draw());
+    }
+
+    checkThrowObjects() {
+        if (this.bottles === 0) {
+            this.keyboard.takeThrow();
+            return;
         }
+
+        const image = ThrowableObject.image;
+        if (!image.complete || image.naturalWidth === 0) return;
+
+        const now = performance.now();
+        const pressed = this.keyboard.takeThrow();
+        if (!pressed && (!this.keyboard.D || now < this.nextThrowAt)) return;
+
+        const character = this.character;
+        const direction = character.otherDiretion ? -1 : 1;
+        const x = direction === -1 ? character.x : character.x + character.width;
+        const bottle = new ThrowableObject(x, character.y + 100, direction);
+
+        this.throwableObjects.push(bottle);
+        this.bottles--;
+        this.nextThrowAt = now + 200;
     }
 
     checkBottleCollisions() {
@@ -72,6 +78,7 @@ class World {
             if (!enemy && bottle.y < this.canvas.height) return true;
 
             bottle.stop();
+            gameAudio.play('bottleBreak');
             return false;
         });
     }
@@ -94,6 +101,10 @@ class World {
             enemy.stop?.();
             this.level.enemies = this.level.enemies.filter((item) => item !== enemy);
 
+            if (enemy instanceof Chicken) {
+                gameAudio.play(enemy.width < 70 ? 'chickenDead2' : 'chickenDead');
+            }
+
             if (isEndboss) {
                 this.finishGame(true);
             }
@@ -105,6 +116,7 @@ class World {
             if (!this.touchesCollectible(coin)) return true;
 
             this.coins++;
+            gameAudio.play('coinCollect');
             return false;
         });
 
@@ -112,6 +124,7 @@ class World {
             if (!this.touchesCollectible(bottle)) return true;
 
             this.bottles++;
+            gameAudio.play('bottleCollect');
             return false;
         });
     }
@@ -119,154 +132,81 @@ class World {
     touchesCollectible(item) {
         const character = this.character;
 
-        // Die transparenten Bildränder zählen beim Einsammeln nicht mit.
         return character.x + character.width - 12 > item.x + 20 &&
             character.x + 12 < item.x + item.width - 20 &&
             character.y + character.height > item.y + 20 &&
             character.y + 100 < item.y + item.height - 12;
     }
 
+    getCharacterHitbox() {
+        const { x, y, width, height } = this.character;
+
+        return {
+            left: x + width * 0.22,
+            right: x + width * 0.78,
+            top: y + height * 0.4,
+            bottom: y + height * 0.95
+        };
+    }
+
+    getEnemyHitbox(enemy) {
+        const { x, y, width, height } = enemy;
+        const isEndboss = enemy instanceof Endboss;
+
+        return {
+            left: x + width * 0.15,
+            right: x + width * 0.85,
+            top: y + height * (isEndboss ? 0.2 : 0.1),
+            bottom: y + height * (isEndboss ? 0.96 : 0.92)
+        };
+    }
+
     checkChickenStomps() {
-        const character = this.character;
-        const bottom = character.y + character.height;
-        const previousBottom = this.previousCharacterBottom ?? bottom;
-        this.previousCharacterBottom = bottom;
+        const pepe = this.getCharacterHitbox();
+        const previousBottom = this.previousCharacterBottom ?? pepe.bottom;
+        this.previousCharacterBottom = pepe.bottom;
 
-        if (character.isDead() || character.speedY >= 0 || bottom <= previousBottom) return;
+        if (this.character.isDead() || this.character.speedY >= 0 || pepe.bottom <= previousBottom) return;
 
-        const chicken = this.level.enemies.find((enemy) =>
-            enemy instanceof Chicken &&
-            previousBottom <= enemy.y &&
-            bottom >= enemy.y &&
-            character.x + character.width - 12 > enemy.x + 5 &&
-            character.x + 12 < enemy.x + enemy.width - 5
-        );
+        const chicken = this.level.enemies.find((enemy) => {
+            if (!(enemy instanceof Chicken)) return false;
+
+            const target = this.getEnemyHitbox(enemy);
+
+            return previousBottom <= target.top &&
+                pepe.bottom >= target.top &&
+                pepe.right > target.left &&
+                pepe.left < target.right;
+        });
 
         if (chicken) this.hitEnemy(chicken);
     }
 
     checkCollisions() {
         this.checkChickenStomps();
+        const pepe = this.getCharacterHitbox();
 
-        for (const enemy of this.level.enemies) {
-            if (this.character.isColliding(enemy)) {
-                this.character.hit();
-                this.statusBar.setPercentage(this.character.energy);
+        const touchingEnemies = this.level.enemies.filter((enemy) => {
+            const target = this.getEnemyHitbox(enemy);
 
-                if (this.character.isDead()) {
-                    this.finishGame(false);
-                    return;
-                }
-            }
-        }
-    }
-
-    createInventoryIcon(path, x) {
-        const icon = new DrawableObject();
-        icon.loadImage(path);
-        icon.x = x;
-        icon.y = 10;
-        icon.width = 40;
-        icon.height = 40;
-        return icon;
-    }
-
-    drawInventory() {
-        this.ctx.save();
-        this.ctx.font = 'bold 20px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-
-        this.drawInventoryItem(this.coinIcon, this.coins);
-        this.drawInventoryItem(this.bottleIcon, this.bottles);
-
-        this.ctx.restore();
-    }
-
-    drawInventoryItem(icon, count) {
-        this.ctx.beginPath();
-        this.ctx.roundRect(icon.x - 4, icon.y, 80, icon.height, 20);
-        this.ctx.fillStyle = 'rgba(43, 26, 18, 0.85)';
-        this.ctx.fill();
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = '#e6b95c';
-        this.ctx.stroke();
-
-        this.addToMap(icon);
-        this.ctx.fillStyle = '#ffda78';
-        this.ctx.fillText(count, icon.x + 55, icon.y + icon.height / 2);
-    }
-
-    drawEndbossHealthBar() {
-        const endboss = this.level.enemies.find((enemy) => enemy instanceof Endboss);
-
-        if (endboss?.isChasing) {
-            endboss.drawHealthBar(this.ctx);
-        }
-    }
-
-    draw() {
-        if (this.gameFinished) return;
-
-        this.checkChickenStomps();
-        this.collectItems();
-        this.checkBottleCollisions();
-
-        if (this.gameFinished) return;
-
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.translate(this.camera_x, 0);
-        this.addObjectsToMap(this.level.backgroundObjects);
-        this.addToMap(this.character);
-        this.addObjectsToMap(this.level.clouds);
-        this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.level.coins);
-        this.addObjectsToMap(this.level.bottles);
-        this.addObjectsToMap(this.throwableObjects);
-        this.ctx.translate(-this.camera_x, 0);
-
-        // ------ Space for fixed objects ------
-        this.addToMap(this.statusBar);
-        this.drawInventory();
-        this.drawEndbossHealthBar();
-
-        // Draw() wird immer wieder aufgerufen.
-        const self = this;
-        requestAnimationFrame(function () {
-            self.draw();
+            return pepe.right > target.left &&
+                pepe.left < target.right &&
+                pepe.bottom > target.top &&
+                pepe.top < target.bottom;
         });
-    }
 
-    addObjectsToMap(objects) {
-        objects.forEach((object) => {
-            this.addToMap(object);
-        });
-    }
+        if (touchingEnemies.length === 0) return;
 
-    addToMap(mo) {
-        if (mo.img.complete && mo.img.naturalWidth > 0) {
-            if (mo.otherDiretion) {
-                this.flipImage(mo);
-            }
+        const bossIsTouching = touchingEnemies.some((enemy) => enemy instanceof Endboss);
+        if (!this.character.hit(bossIsTouching ? 20 : 5)) return;
 
-            mo.draw(this.ctx);
+        this.statusBar.setPercentage(this.character.energy);
 
-            if (mo.otherDiretion) {
-                this.flipImageBack(mo);
-            }
+        if (this.character.isDead()) {
+            gameAudio.play('characterDead');
+            this.finishGame(false);
+        } else {
+            gameAudio.play('characterDamage');
         }
-    }
-
-    flipImage(mo) {
-        this.ctx.save();
-        this.ctx.translate(mo.width, 0);
-        this.ctx.scale(-1, 1);
-        mo.x = mo.x * -1;
-    }
-
-    flipImageBack(mo) {
-        mo.x = mo.x * -1;
-        this.ctx.restore();
     }
 }

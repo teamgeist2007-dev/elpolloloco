@@ -1,8 +1,13 @@
 const gameScreen = document.getElementById('game-screen');
 const gameScreenImage = document.getElementById('game-screen-image');
 const gameScreenButton = document.getElementById('game-screen-button');
+const gameHelp = document.getElementById('game-help');
 const restartKey = 'el-pollo-loco-restart';
 let gameStarted = false;
+
+document.getElementById('game-help-button').addEventListener('click', () => {
+    gameHelp.showModal();
+});
 
 gameScreenButton.addEventListener('click', () => {
     if (gameStarted) {
@@ -38,4 +43,6 @@ function showGameResult(won) {
     gameScreenButton.textContent = 'Neues Spiel starten';
     gameScreen.hidden = false;
     gameScreenButton.focus();
+
+    gameAudio.play(won ? 'gameWin' : 'gameLose');
 }

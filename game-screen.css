@@ -22,11 +22,20 @@
     object-fit: contain;
 }
 
-#game-screen-button {
+.game-screen-actions {
     position: absolute;
-    left: 50%;
+    right: 0;
     bottom: 8%;
-    transform: translateX(-50%);
+    left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding-inline: 8px;
+}
+
+.game-screen-actions button,
+#game-help button {
     min-height: 44px;
     padding: 6px 16px;
     border: 2px solid #302016;
@@ -34,11 +43,47 @@
     background-color: #ffd27a;
     color: #302016;
     font: 700 16px Arial, sans-serif;
-    white-space: nowrap;
     cursor: pointer;
 }
 
-#game-screen-button:focus-visible {
+.game-screen-actions button:focus-visible,
+#game-help button:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 3px;
+}
+
+#game-help {
+    box-sizing: border-box;
+    width: min(calc(100% - 32px), 520px);
+    max-height: calc(100dvh - 32px);
+    padding: clamp(18px, 4vw, 30px);
+    border: 2px solid #ffd27a;
+    border-radius: 12px;
+    background:
+        linear-gradient(rgba(48, 32, 22, 0.8), rgba(48, 32, 22, 0.8)),
+        url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    color: #fff3dd;
+    font: 16px/1.5 Arial, sans-serif;
+}
+
+#game-help::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#game-help h2 {
+    margin: 0;
+    text-align: center;
+}
+
+#game-help li + li {
+    margin-top: 8px;
+}
+
+#game-help kbd {
+    font: inherit;
+    font-weight: 700;
+}
+
+#game-help form {
+    text-align: center;
 }

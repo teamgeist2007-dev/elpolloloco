@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="game-screen.css">
+    <link rel="stylesheet" href="impressum.css">
     <title>El Pollo Loco</title>
 
     <script src="models/drawable-object.class.js"></script>
@@ -16,6 +17,7 @@
     <script src="models/chicken.class.js"></script>
     <script src="models/cloud.class.js"></script>
     <script src="models/status-bar.class.js"></script>
+    <script src="models/world-renderer.class.js"></script>
     <script src="models/world.class.js"></script>
     <script src="models/background-object.class.js"></script>
     <script src="models/keyboard.class.js"></script>
@@ -23,6 +25,7 @@
     <script src="models/endboss.class.js"></script>
     <script src="models/level1.js"></script>
     <script src="js/game.js"></script>
+    <script defer src="js/game-audio.js"></script>
     <script defer src="js/game-screen.js"></script>
 </head>
 
@@ -35,7 +38,13 @@
 
             <div id="game-screen">
                 <img id="game-screen-image" src="img/startscreen/startScreen.png" alt="El Pollo Loco">
-                <button id="game-screen-button" type="button">Spiel starten</button>
+
+                <div class="game-screen-actions">
+                    <button id="game-screen-button" type="button">Spiel starten</button>
+                    <button id="game-help-button" type="button" aria-haspopup="dialog">
+                        Spielanleitung
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -59,7 +68,43 @@
             <span><kbd>Leertaste</kbd> Springen</span>
             <span><kbd>D</kbd> Flasche werfen</span>
         </p>
+
+        <footer class="impressum-footer">
+            <button id="sound-toggle" class="impressum-link" type="button">
+                Ton ausschalten
+            </button>
+            <a class="impressum-link" href="impressum.html">Impressum</a>
+        </footer>
     </section>
+
+    <dialog id="game-help" aria-labelledby="game-help-title">
+        <h2 id="game-help-title">So spielst du</h2>
+
+        <ul>
+            <li>
+                <strong>Sammeln.</strong> Berühre Münzen und Flaschen, um sie einzusammeln.
+                Im Level liegen 10 Münzen und 6 Flaschen.
+            </li>
+            <li>
+                <strong>Hühner besiegen.</strong> Spring von oben auf ein Huhn
+                oder triff es mit einer Flasche. Seitliche Berührungen kosten Leben.
+            </li>
+            <li>
+                <strong>Endboss besiegen.</strong> Heb dir fünf Flaschen für ihn auf.
+                Mit fünf Treffern gewinnst du.
+            </li>
+        </ul>
+
+        <p>
+            Mit <kbd>←</kbd> und <kbd>→</kbd> läufst du,
+            mit der <kbd>Leertaste</kbd> springst du und mit <kbd>D</kbd> wirfst du.
+            Auf dem Handy nutzt du die Buttons unter dem Spielfeld.
+        </p>
+
+        <form method="dialog">
+            <button type="submit" autofocus>Schließen</button>
+        </form>
+    </dialog>
 </body>
 
 </html>
