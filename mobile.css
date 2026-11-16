@@ -1,0 +1,137 @@
+@media (hover: none) and (pointer: coarse) {
+    html {
+        background: #bc6c32 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    }
+
+    body.game-page {
+        box-sizing: border-box;
+        width: 100%;
+        height: auto;
+        min-height: 100svh;
+        margin: 0;
+        padding: 8px;
+        padding-top: max(8px, env(safe-area-inset-top, 0px));
+        padding-right: max(8px, env(safe-area-inset-right, 0px));
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+        padding-left: max(8px, env(safe-area-inset-left, 0px));
+        background: none;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    .game-page > h1 {
+        margin: 0 0 12px;
+        font-size: 36px;
+    }
+
+    .game-page #game-container,
+    .game-page #game-stage {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    .game-page #game-stage #canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-width: none;
+        max-height: none;
+    }
+
+    .game-page .keyboard-help {
+        display: none;
+    }
+
+    .game-page .mobile-controls {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .game-page > h1,
+    .game-page #game-stage,
+    .game-page .mobile-controls button {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .game-page #canvas,
+    .game-page .mobile-controls button {
+        touch-action: none;
+    }
+
+    .game-page .mobile-controls button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    html,
+    body.game-page {
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
+    body.game-page {
+        height: 100svh;
+        padding-top: 8px;
+        padding-bottom: 22px;
+    }
+
+    .game-page > h1 {
+        display: none;
+    }
+
+    .game-page #game-container {
+        display: grid;
+        grid-template-columns: 74px minmax(0, 1fr) 74px;
+        grid-template-rows: 44px 1fr;
+        height: 100%;
+    }
+
+    .game-page #game-stage {
+        grid-column: 2;
+        grid-row: 1 / 3;
+        align-self: center;
+        justify-self: center;
+
+        /* 30px Rand abziehen. Das Spielfeld ist 1,5-mal so breit wie hoch. */
+        width: min(100%, calc((100svh - 30px) * 1.5));
+    }
+
+    .game-page .mobile-controls,
+    .game-page .impressum-footer {
+        display: contents;
+    }
+
+    .game-page .mobile-controls > div {
+        grid-row: 2;
+        align-self: center;
+        justify-self: center;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .game-page .mobile-controls > div:first-child,
+    .game-page #sound-toggle {
+        grid-column: 1;
+    }
+
+    .game-page .mobile-controls > div:last-child,
+    .game-page .impressum-footer a {
+        grid-column: 3;
+    }
+
+    .game-page .impressum-footer > * {
+        grid-row: 1;
+        display: grid;
+        place-content: center;
+        margin: 0 2px;
+        padding: 4px 2px;
+        font: 700 12px/1.2 Arial, sans-serif;
+        text-align: center;
+    }
+}
