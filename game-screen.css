@@ -1,3 +1,4 @@
+/* Hält das Spielfeld und die Bilder für Start, Sieg und Niederlage an derselben Stelle. */
 #game-stage {
     position: relative;
     width: fit-content;
@@ -5,16 +6,14 @@
     margin-inline: auto;
 }
 
-#game-stage canvas {
-    display: block;
-}
-
+/* Legt die Start- oder Endansicht über das Spielfeld. */
 #game-screen {
     position: absolute;
     inset: 0;
     background-color: #302016;
 }
 
+/* Zeigt das Bild vollständig und behält sein Seitenverhältnis bei. */
 #game-screen-image {
     display: block;
     width: 100%;
@@ -22,6 +21,7 @@
     object-fit: contain;
 }
 
+/* Platziert die Buttons unten auf dem Start- oder Endbild. */
 .game-screen-actions {
     position: absolute;
     right: 0;
@@ -34,6 +34,7 @@
     padding-inline: 8px;
 }
 
+/* Gibt den Buttons auf den Bildern und in der Anleitung denselben Stil. */
 .game-screen-actions button,
 #game-help button {
     min-height: 44px;
@@ -46,12 +47,14 @@
     cursor: pointer;
 }
 
+/* Macht sichtbar, welcher Button mit der Tastatur ausgewählt wurde. */
 .game-screen-actions button:focus-visible,
 #game-help button:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 3px;
 }
 
+/* Legt Größe, Text und Wüstenhintergrund des Anleitungsfensters fest. */
 #game-help {
     box-sizing: border-box;
     width: min(calc(100% - 32px), 520px);
@@ -66,24 +69,63 @@
     font: 16px/1.5 Arial, sans-serif;
 }
 
+/* Dunkelt die Seite hinter der geöffneten Anleitung ab. */
 #game-help::backdrop {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
+/* Zentriert die Überschrift der Anleitung. */
 #game-help h2 {
     margin: 0;
     text-align: center;
 }
 
+/* Fügt zwischen den Punkten der Anleitung etwas Abstand ein. */
 #game-help li + li {
     margin-top: 8px;
 }
 
+/* Hebt die Tasten in der Anleitung durch Fettdruck hervor. */
 #game-help kbd {
     font: inherit;
     font-weight: 700;
 }
 
+/* Zentriert den Schließen-Button. */
 #game-help form {
     text-align: center;
+}
+
+/* Versteckt den Vollbildbutton, solange der Browser die Funktion nicht freigibt. */
+#fullscreen-button[hidden] {
+    display: none;
+}
+
+/* Ordnet den gesamten Spielbereich neu an, wenn Vollbild aktiv ist. */
+#game-container.fullscreen {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 12px;
+    overflow: auto;
+    background: #302016 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+}
+
+/* Berechnet die Größe des Spielfelds aus dem Platz, der im Vollbild übrig ist. */
+#game-container.fullscreen #game-stage {
+    width: min(100%, max(1px, calc((100svh - 180px) * 1.5)));
+    flex-shrink: 0;
+}
+
+/* Begrenzt im Vollbild die Breite der Buttonleiste und der Tastaturhilfe. */
+#game-container.fullscreen .mobile-controls,
+#game-container.fullscreen .keyboard-help {
+    box-sizing: border-box;
+    width: min(100%, 720px);
 }

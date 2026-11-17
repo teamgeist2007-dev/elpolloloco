@@ -1,3 +1,4 @@
+/* Zentriert das Impressum auf dem Wüstenhintergrund. */
 .impressum-page {
     box-sizing: border-box;
     display: grid;
@@ -10,6 +11,7 @@
     font-family: Arial, sans-serif;
 }
 
+/* Macht die Angaben mit einer hellen, mittig ausgerichteten Fläche gut lesbar. */
 .impressum-card {
     box-sizing: border-box;
     width: min(100%, 480px);
@@ -21,21 +23,25 @@
     overflow-wrap: anywhere;
 }
 
+/* Bestimmt Größe und Abstand der Impressum-Überschrift. */
 .impressum-card h1 {
     margin: 0 0 20px;
     font-size: clamp(32px, 6vw, 48px);
     line-height: 1.1;
 }
 
+/* Zeigt die Adresse in normaler Schrift statt kursiv. */
 .impressum-card address {
     font-style: normal;
 }
 
+/* Zentriert die Buttons und den Impressum-Link unter dem Spiel. */
 .impressum-footer {
     margin-top: 12px;
     text-align: center;
 }
 
+/* Gibt dem Impressum-Link und den zugehörigen Buttons denselben Stil. */
 .impressum-link {
     display: inline-block;
     padding: 8px 14px;

@@ -1,15 +1,18 @@
+/* Diese Regeln passen das Spiel für Geräte mit Touch-Steuerung an. */
 @media (hover: none) and (pointer: coarse) {
+    /* Zeigt das Wüstenbild bis zum äußeren Rand des Bildschirms. */
     html {
         background: #bc6c32 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
     }
 
+    /* Setzt Mindesthöhe und Abstände für die Spielseite auf dem Handy. */
     body.game-page {
         box-sizing: border-box;
         width: 100%;
         height: auto;
         min-height: 100svh;
         margin: 0;
-        padding: 8px;
+        /* Die Randabstände berücksichtigen Aussparung, Rundungen und Home-Balken. */
         padding-top: max(8px, env(safe-area-inset-top, 0px));
         padding-right: max(8px, env(safe-area-inset-right, 0px));
         padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
@@ -18,11 +21,21 @@
         -webkit-text-size-adjust: 100%;
     }
 
+    /* Auch im Vollbild bekommen die Elemente Abstand zur Aussparung. */
+    .game-page #game-container.fullscreen {
+        padding-top: max(12px, env(safe-area-inset-top, 0px));
+        padding-right: max(12px, env(safe-area-inset-right, 0px));
+        padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+        padding-left: max(12px, env(safe-area-inset-left, 0px));
+    }
+
+    /* Passt die Größe des Titels auf Touch-Geräten an. */
     .game-page > h1 {
         margin: 0 0 12px;
         font-size: 36px;
     }
 
+    /* Nutzt auf dem Handy die verfügbare Breite für das Spiel. */
     .game-page #game-container,
     .game-page #game-stage {
         width: 100%;
@@ -30,24 +43,20 @@
         margin: 0;
     }
 
+    /* Skaliert das Spielfeld mit der Breite und lässt die Höhe automatisch folgen. */
     .game-page #game-stage #canvas {
-        display: block;
         width: 100%;
         height: auto;
         max-width: none;
         max-height: none;
     }
 
+    /* Auf Touch-Geräten steht die Belegung in der Spielanleitung. */
     .game-page .keyboard-help {
         display: none;
     }
 
-    .game-page .mobile-controls {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
-    }
-
+    /* Verhindert versehentliches Markieren von Text beim Spielen. */
     .game-page > h1,
     .game-page #game-stage,
     .game-page .mobile-controls button {
@@ -56,44 +65,61 @@
         -webkit-touch-callout: none;
     }
 
+    /* Verhindert Scrollen durch eine Wischbewegung auf dem Spielfeld oder einem Touch-Button. */
     .game-page #canvas,
     .game-page .mobile-controls button {
         touch-action: none;
     }
 
+    /* Legt die Mindestgröße der Touch-Buttons fest. */
     .game-page .mobile-controls button {
         min-width: 44px;
         min-height: 44px;
     }
 }
 
+/* Diese Regeln greifen zusätzlich, wenn das Handy quer gehalten wird. */
 @media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    /* Verhindert Scrollen im Querformat. */
     html,
     body.game-page {
         overflow: hidden;
         overscroll-behavior: none;
     }
 
+    /* Nutzt eine stabile Bildschirmhöhe und lässt unten Platz für den Home-Balken. */
     body.game-page {
         height: 100svh;
         padding-top: 8px;
         padding-bottom: 22px;
     }
 
+    /* Blendet den Titel im Querformat aus, damit das Spielfeld mehr Platz bekommt. */
     .game-page > h1 {
         display: none;
     }
 
-    .game-page #game-container {
+    /* Teilt das Querformat in linke Buttons, Spielfeld und rechte Buttons auf. */
+    .game-page #game-container,
+    .game-page #game-container.fullscreen {
         display: grid;
         grid-template-columns: 74px minmax(0, 1fr) 74px;
-        grid-template-rows: 44px 1fr;
+        grid-template-rows: 44px 1fr auto;
         height: 100%;
     }
 
-    .game-page #game-stage {
+    /* Setzt im Vollbild dieselben oberen und unteren Abstände wie im Querformat. */
+    .game-page #game-container.fullscreen {
+        padding-top: 8px;
+        padding-bottom: 22px;
+        overflow: hidden;
+    }
+
+    /* Zentriert das Spielfeld zwischen den Buttons und hält es im Verhältnis 3 zu 2. */
+    .game-page #game-stage,
+    .game-page #game-container.fullscreen #game-stage {
         grid-column: 2;
-        grid-row: 1 / 3;
+        grid-row: 1 / 4;
         align-self: center;
         justify-self: center;
 
@@ -101,11 +127,13 @@
         width: min(100%, calc((100svh - 30px) * 1.5));
     }
 
+    /* Lässt das Raster die einzelnen Button-Gruppen und Links direkt platzieren. */
     .game-page .mobile-controls,
     .game-page .impressum-footer {
         display: contents;
     }
 
+    /* Stellt die beiden Buttons jeder Gruppe im Querformat untereinander. */
     .game-page .mobile-controls > div {
         grid-row: 2;
         align-self: center;
@@ -115,16 +143,19 @@
         gap: 4px;
     }
 
+    /* Platziert die Laufbuttons und den Tonknopf links. */
     .game-page .mobile-controls > div:first-child,
     .game-page #sound-toggle {
         grid-column: 1;
     }
 
+    /* Platziert Springen, Werfen und den Impressum-Link rechts. */
     .game-page .mobile-controls > div:last-child,
     .game-page .impressum-footer a {
         grid-column: 3;
     }
 
+    /* Setzt die zusätzlichen Bedienelemente an den Rand des Spielfelds. */
     .game-page .impressum-footer > * {
         grid-row: 1;
         display: grid;
@@ -133,5 +164,12 @@
         padding: 4px 2px;
         font: 700 12px/1.2 Arial, sans-serif;
         text-align: center;
+    }
+
+    /* Setzt den Vollbildbutton im Querformat unten links. */
+    .game-page #fullscreen-button {
+        grid-column: 1;
+        grid-row: 3;
+        min-height: 44px;
     }
 }

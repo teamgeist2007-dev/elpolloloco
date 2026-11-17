@@ -2,13 +2,16 @@
 <html lang="de">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="game-screen.css">
     <link rel="stylesheet" href="impressum.css">
     <link rel="stylesheet" href="mobile.css">
     <title>El Pollo Loco</title>
+
 
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
@@ -37,8 +40,10 @@
         <div id="game-stage">
             <canvas id="canvas" width="720" height="480"></canvas>
 
+
             <div id="game-screen">
                 <img id="game-screen-image" src="img/startscreen/startScreen.png" alt="El Pollo Loco">
+
 
                 <div class="game-screen-actions">
                     <button id="game-screen-button" type="button">Spiel starten</button>
@@ -49,6 +54,7 @@
             </div>
         </div>
 
+        <!-- Die Touch-Buttons sind in Laufen links sowie Springen und Werfen rechts aufgeteilt. -->
         <div class="mobile-controls">
             <div>
                 <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
@@ -63,6 +69,7 @@
             </div>
         </div>
 
+        <!-- Erklärt die Tastatur-Steuerung direkt unter dem Spiel. -->
         <p class="keyboard-help">
             <strong>Tastatur</strong>
             <span><kbd>←</kbd> <kbd>→</kbd> Laufen</span>
@@ -70,42 +77,50 @@
             <span><kbd>D</kbd> Flasche werfen</span>
         </p>
 
+        <!-- Enthält Ton, Vollbild und den Link zum Impressum. -->
         <footer class="impressum-footer">
             <button id="sound-toggle" class="impressum-link" type="button">
                 Ton ausschalten
             </button>
+            <!-- JavaScript zeigt diesen Button an, sobald Vollbild verfügbar ist. -->
+            <button id="fullscreen-button" class="impressum-link" type="button" hidden>
+                Vollbild
+            </button>
             <a class="impressum-link" href="impressum.html">Impressum</a>
         </footer>
+
+        <!-- Das Fenster mit den Spielregeln öffnet sich über dem Spielbereich. -->
+        <dialog id="game-help" aria-labelledby="game-help-title">
+            <h2 id="game-help-title">So spielst du</h2>
+
+            <!-- Hier stehen die Ziele des Spiels: sammeln, Hühner besiegen und den Endboss treffen. -->
+            <ul>
+                <li>
+                    <strong>Sammeln.</strong> Berühre Münzen und Flaschen, um sie einzusammeln.
+                    Im Level liegen 10 Münzen und 6 Flaschen.
+                </li>
+                <li>
+                    <strong>Hühner besiegen.</strong> Spring von oben auf ein Huhn
+                    oder triff es mit einer Flasche. Seitliche Berührungen kosten Leben.
+                </li>
+                <li>
+                    <strong>Endboss besiegen.</strong> Heb dir fünf Flaschen für ihn auf.
+                    Mit fünf Treffern gewinnst du.
+                </li>
+            </ul>
+
+            <p>
+                Mit <kbd>←</kbd> und <kbd>→</kbd> läufst du,
+                mit der <kbd>Leertaste</kbd> springst du und mit <kbd>D</kbd> wirfst du.
+                Auf dem Handy nutzt du die Pfeiltasten und den Flaschenbutton.
+            </p>
+
+            <!-- Das Formular schließt das Anleitungsfenster beim Klick auf Schließen. -->
+            <form method="dialog">
+                <button type="submit" autofocus>Schließen</button>
+            </form>
+        </dialog>
     </section>
-
-    <dialog id="game-help" aria-labelledby="game-help-title">
-        <h2 id="game-help-title">So spielst du</h2>
-
-        <ul>
-            <li>
-                <strong>Sammeln.</strong> Berühre Münzen und Flaschen, um sie einzusammeln.
-                Im Level liegen 10 Münzen und 6 Flaschen.
-            </li>
-            <li>
-                <strong>Hühner besiegen.</strong> Spring von oben auf ein Huhn
-                oder triff es mit einer Flasche. Seitliche Berührungen kosten Leben.
-            </li>
-            <li>
-                <strong>Endboss besiegen.</strong> Heb dir fünf Flaschen für ihn auf.
-                Mit fünf Treffern gewinnst du.
-            </li>
-        </ul>
-
-        <p>
-            Mit <kbd>←</kbd> und <kbd>→</kbd> läufst du,
-            mit der <kbd>Leertaste</kbd> springst du und mit <kbd>D</kbd> wirfst du.
-            Auf dem Handy nutzt du die Pfeiltasten und den Flaschenbutton.
-        </p>
-
-        <form method="dialog">
-            <button type="submit" autofocus>Schließen</button>
-        </form>
-    </dialog>
 </body>
 
 </html>

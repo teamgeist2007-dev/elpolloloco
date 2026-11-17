@@ -1,15 +1,23 @@
+// Hier läuft das Spiel ab: Kollisionen, Würfe, Einsammeln und Spielende.
 class World {
+    // Pepe und das aktuelle Level, in dem er sich bewegt.
     character = new Character();
     level = level1;
+    // Der seitliche Versatz für die Kamera.
     camera_x = 0;
     statusBar = new StatusBar();
+    // Liste der Flaschen, die gerade durch die Luft fliegen.
     throwableObjects = [];
+    // Pepes Fußhöhe aus dem vorherigen Bild. Damit erkennt das Spiel eine Landung auf einem Huhn.
     previousCharacterBottom;
     gameFinished = false;
+    // Anzahl der gesammelten Münzen und der aktuell übrigen Flaschen.
     coins = 0;
     bottles = 0;
+    // Ab diesem Zeitpunkt ist beim Gedrückthalten von D der nächste Wurf möglich.
     nextThrowAt = 0;
 
+    // Verbindet Pepe, Steuerung, Zeichnen und Ton und startet die Spielrunde.
     constructor(canvas, keyboard) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -21,6 +29,7 @@ class World {
         this.draw();
     }
 
+    // Beendet die Runde und zeigt das passende Bild für Sieg oder Niederlage.
     finishGame(won) {
         if (this.gameFinished) return;
 
@@ -29,9 +38,11 @@ class World {
         showGameResult(won);
     }
 
+    // Prüft die Spielregeln, zeichnet das aktuelle Bild und plant das nächste.
     draw() {
         if (this.gameFinished) return;
 
+        // Prüft zuerst, ob Pepe auf einem Huhn landet oder einen Gegner berührt.
         this.checkCollisions();
         if (this.gameFinished) return;
 
@@ -42,32 +53,44 @@ class World {
         this.checkThrowObjects();
         gameAudio.update(this);
         this.renderer.draw(this);
+        // Der Browser ruft draw für das nächste Spielbild wieder auf.
         requestAnimationFrame(() => this.draw());
     }
 
+    // Wirft eine Flasche, wenn eine im Vorrat ist und die Wurftaste benutzt wird.
     checkThrowObjects() {
         if (this.bottles === 0) {
             this.keyboard.takeThrow();
             return;
         }
 
+        // Wartet, bis das Flaschenbild geladen ist, damit der Wurf sichtbar ist.
         const image = ThrowableObject.image;
         if (!image.complete || image.naturalWidth === 0) return;
 
         const now = performance.now();
+        // Holt einen kurzen Tastendruck ab. Gedrückthalten ermöglicht weitere Würfe.
         const pressed = this.keyboard.takeThrow();
         if (!pressed && (!this.keyboard.D || now < this.nextThrowAt)) return;
 
-        const character = this.character;
-        const direction = character.otherDiretion ? -1 : 1;
-        const x = direction === -1 ? character.x : character.x + character.width;
-        const bottle = new ThrowableObject(x, character.y + 100, direction);
+        const pepe = this.character;
+        let direction = 1;
+        let x = pepe.x + pepe.width;
+
+        // Wählt die linke Seite und die linke Flugrichtung, wenn Pepe nach links schaut.
+        if (pepe.otherDirection) {
+            direction = -1;
+            x = pepe.x;
+        }
+
+        const bottle = new ThrowableObject(x, pepe.y + 100, direction);
 
         this.throwableObjects.push(bottle);
         this.bottles--;
         this.nextThrowAt = now + 200;
     }
 
+    // Prüft, ob die fliegenden Flaschen einen Gegner treffen oder aus dem Spielfeld fallen.
     checkBottleCollisions() {
         this.throwableObjects = this.throwableObjects.filter((bottle) => {
             const enemy = this.level.enemies.find((enemy) =>
@@ -83,6 +106,7 @@ class World {
         });
     }
 
+    // Prüft, ob sich die Trefferflächen von Flasche und Gegner überlappen.
     bottleHitsEnemy(bottle, enemy) {
         const side = enemy instanceof Endboss ? 25 : 5;
         const top = enemy instanceof Endboss ? 100 : 5;
@@ -93,6 +117,7 @@ class World {
             bottle.y + 4 < enemy.y + enemy.height;
     }
 
+    // Zieht dem Gegner Leben ab und entfernt ihn, wenn er besiegt ist.
     hitEnemy(enemy) {
         const isEndboss = enemy instanceof Endboss;
         enemy.hit(isEndboss ? 20 : 100);
@@ -101,6 +126,7 @@ class World {
             enemy.stop?.();
             this.level.enemies = this.level.enemies.filter((item) => item !== enemy);
 
+            // Kleine und große Hühner haben unterschiedliche Geräusche.
             if (enemy instanceof Chicken) {
                 gameAudio.play(enemy.width < 70 ? 'chickenDead2' : 'chickenDead');
             }
@@ -111,6 +137,7 @@ class World {
         }
     }
 
+    // Entfernt eingesammelte Münzen und Flaschen aus dem Level und erhöht die Zähler.
     collectItems() {
         this.level.coins = this.level.coins.filter((coin) => {
             if (!this.touchesCollectible(coin)) return true;
@@ -129,6 +156,7 @@ class World {
         });
     }
 
+    // Prüft, ob Pepe eine Flasche oder Münze berührt.
     touchesCollectible(item) {
         const character = this.character;
 
@@ -138,6 +166,7 @@ class World {
             character.y + 100 < item.y + item.height - 12;
     }
 
+    // Berechnet Pepes Trefferfläche mit etwas Abstand zu den transparenten Bildrändern.
     getCharacterHitbox() {
         const { x, y, width, height } = this.character;
 
@@ -149,6 +178,7 @@ class World {
         };
     }
 
+    // Berechnet die Trefferfläche eines Gegners. Beim Endboss sind die Ränder anders.
     getEnemyHitbox(enemy) {
         const { x, y, width, height } = enemy;
         const isEndboss = enemy instanceof Endboss;
@@ -161,8 +191,10 @@ class World {
         };
     }
 
+    // Prüft, ob Pepe beim Fallen von oben auf einem Huhn landet.
     checkChickenStomps() {
         const pepe = this.getCharacterHitbox();
+        // Vergleicht Pepes vorherige und aktuelle Fußhöhe, um einen Treffer von oben zu erkennen.
         const previousBottom = this.previousCharacterBottom ?? pepe.bottom;
         this.previousCharacterBottom = pepe.bottom;
 
@@ -182,23 +214,31 @@ class World {
         if (chicken) this.hitEnemy(chicken);
     }
 
+    // Berührt Pepe einen Gegner, verliert er Leben. Ein Endbosstreffer zählt stärker.
     checkCollisions() {
         this.checkChickenStomps();
         const pepe = this.getCharacterHitbox();
 
-        const touchingEnemies = this.level.enemies.filter((enemy) => {
+        // Speichert den Schaden für diesen Kontakt, bevor Pepes Trefferschutz geprüft wird.
+        let damage = 0;
+
+        for (const enemy of this.level.enemies) {
             const target = this.getEnemyHitbox(enemy);
 
-            return pepe.right > target.left &&
+            const touchesPepe = pepe.right > target.left &&
                 pepe.left < target.right &&
                 pepe.bottom > target.top &&
                 pepe.top < target.bottom;
-        });
 
-        if (touchingEnemies.length === 0) return;
+            if (touchesPepe && enemy instanceof Endboss) {
+                damage = 20;
+                break;
+            }
 
-        const bossIsTouching = touchingEnemies.some((enemy) => enemy instanceof Endboss);
-        if (!this.character.hit(bossIsTouching ? 20 : 5)) return;
+            if (touchesPepe) damage = 5;
+        }
+
+        if (damage === 0 || !this.character.hit(damage)) return;
 
         this.statusBar.setPercentage(this.character.energy);
 

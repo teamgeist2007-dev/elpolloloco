@@ -1,26 +1,27 @@
+// Hier wird das erste Level gespeichert, sobald es aufgebaut ist.
 let level1;
 
+// Baut das erste Level zu Beginn einer Runde neu auf.
 function initLevel() {
+    // Dateipfade für Münzen und Flaschen, die du einsammeln kannst.
     const coinImage = 'img/8_coin/coin_1.png';
     const bottleImage = 'img/6_salsa_bottle/1_salsa_bottle_on_ground.png';
 
+    // Hier stehen die sieben Wolken mit ihrer Position im Level.
     const clouds = [
-        [-140, 15],
-        [300, 55],
-        [740, 25],
-        [1180, 65],
-        [1620, 15],
-        [2060, 45],
-        [2500, 25]
-    ].map(([x, y]) => {
-        const cloud = new Cloud();
-        cloud.x = x;
-        cloud.y = y;
-        return cloud;
-    });
+        new Cloud(-140, 15),
+        new Cloud(300, 55),
+        new Cloud(740, 25),
+        new Cloud(1180, 65),
+        new Cloud(1620, 15),
+        new Cloud(2060, 45),
+        new Cloud(2500, 25)
+    ];
 
+    // Übergibt Gegner, Wolken, Landschaft, Münzen und Flaschen an das Level.
     level1 = new Level(
         [
+            // Die erste Zahl bestimmt die Startposition. Mit true entsteht ein kleines Huhn.
             new Chicken(620),
             new Chicken(1000),
             new Chicken(1380),
@@ -29,10 +30,12 @@ function initLevel() {
             new Chicken(1240, true),
             new Chicken(1650, true),
             new Chicken(1950, true),
+            // Der Endboss setzt seine Startposition in seiner eigenen Klasse.
             new Endboss()
         ],
         clouds,
         [
+            // Pro Abschnitt liegen Himmel und drei Landschaftsebenen übereinander.
             new BackgroundObject('img/5_background/layers/air.png', -719),
             new BackgroundObject('img/5_background/layers/3_third_layer/2.png', -719),
             new BackgroundObject('img/5_background/layers/2_second_layer/2.png', -719),
@@ -59,6 +62,7 @@ function initLevel() {
             new BackgroundObject('img/5_background/layers/1_first_layer/2.png', 719 * 3)
         ],
         [
+            // Hier stehen die zehn Münzen und ihre Positionen.
             new CollectibleObject(coinImage, 350, 280),
             new CollectibleObject(coinImage, 500, 280),
             new CollectibleObject(coinImage, 650, 195),
@@ -71,6 +75,7 @@ function initLevel() {
             new CollectibleObject(coinImage, 2150, 280)
         ],
         [
+            // Hier stehen die sechs Flaschen, die Pepe einsammeln kann.
             new CollectibleObject(bottleImage, 250, 340),
             new CollectibleObject(bottleImage, 690, 340),
             new CollectibleObject(bottleImage, 1130, 340),
