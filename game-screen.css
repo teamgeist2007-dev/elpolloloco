@@ -96,6 +96,87 @@
     text-align: center;
 }
 
+/* Kleine Symbole für Ton, Vollbild und Musik oben rechts im Spielfeld. */
+.game-toolbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: auto;
+    gap: 5px;
+}
+
+.game-toolbar button,
+.game-toolbar summary {
+    display: grid;
+    place-items: center;
+    width: clamp(32px, 4vw, 40px);
+    height: clamp(32px, 4vw, 40px);
+    padding: 0;
+    border: 1px solid #ffd27a;
+    border-radius: 8px;
+    background: rgba(48, 32, 22, 0.9);
+    color: #fff3dd;
+    box-sizing: border-box;
+    font: bold 20px/1 Arial, sans-serif;
+    cursor: pointer;
+}
+
+.game-toolbar button:hover,
+.game-toolbar summary:hover {
+    background: #674222;
+}
+
+.game-toolbar button:focus-visible,
+.game-toolbar summary:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* Auf großen Bildschirmen stehen Ton und Vollbild nebeneinander. */
+@media (min-width: 1000px) and (min-height: 650px) {
+    .game-toolbar {
+        grid-template-columns: auto auto;
+    }
+}
+
+/* Der Regler klappt links neben dem Musik-Symbol auf. */
+.music-settings {
+    position: relative;
+    grid-column: -2 / -1;
+    justify-self: end;
+}
+
+.music-settings summary {
+    list-style: none;
+}
+
+.music-settings summary::-webkit-details-marker {
+    display: none;
+}
+
+.music-volume-panel {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 6px);
+    width: 140px;
+    padding: 8px 10px;
+    border: 1px solid #ffd27a;
+    border-radius: 8px;
+    background: #302016;
+    color: #fff3dd;
+    font: 700 14px/1.4 Arial, sans-serif;
+}
+
+.music-volume-panel input {
+    display: block;
+    width: 100%;
+    margin: 6px 0 0;
+    accent-color: #ffd27a;
+    cursor: pointer;
+}
+
 /* Versteckt den Vollbildbutton, solange der Browser die Funktion nicht freigibt. */
 #fullscreen-button[hidden] {
     display: none;
@@ -112,19 +193,18 @@
     max-width: none;
     height: 100%;
     margin: 0;
-    padding: 12px;
+    padding: 8px;
     overflow: auto;
     background: #302016 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
 }
 
 /* Berechnet die Größe des Spielfelds aus dem Platz, der im Vollbild übrig ist. */
 #game-container.fullscreen #game-stage {
-    width: min(100%, max(1px, calc((100svh - 180px) * 1.5)));
+    width: min(100%, max(1px, calc((100svh - 96px) * 1.5)));
     flex-shrink: 0;
 }
 
-/* Begrenzt im Vollbild die Breite der Buttonleiste und der Tastaturhilfe. */
-#game-container.fullscreen .mobile-controls,
+/* Hält die Tastaturleiste im Vollbild kompakt. */
 #game-container.fullscreen .keyboard-help {
     box-sizing: border-box;
     width: min(100%, 720px);

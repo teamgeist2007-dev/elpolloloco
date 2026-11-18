@@ -2,12 +2,12 @@
 class StatusBar extends DrawableObject {
     // Bilder der Anzeige von leer bis voll.
     IMAGES = [
-        'img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png', // 0
+        'img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/20.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/40.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/60.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/80.png',
-        'img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png' // 5
+        'img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png'
     ];
 
     percentage = 100;
@@ -23,28 +23,28 @@ class StatusBar extends DrawableObject {
         this.setPercentage(100);
     }
 
-    // setPercentage(50);
     // Speichert den neuen Lebenswert und wählt das Bild für die Anzeige aus.
     setPercentage(percentage) {
-        this.percentage = percentage; // => 0 ... 5
-        let path = this.IMAGES[this.resolveImageIndex()];
+        this.percentage = percentage;
+        const path = this.IMAGES[this.resolveImageIndex()];
         this.img = this.imageCache[path];
     }
 
-    // Ordnet Pepes Lebenswert der passenden Stufe im Bilder-Array zu.
+    // Ordnet Pepes Lebenswert einer der sechs Balkenstufen zu.
     resolveImageIndex() {
-        if (this.percentage == 100) {
-            return 5;
-        } else if (this.percentage > 80) {
-            return 4;
-        } else if (this.percentage > 60) {
-            return 3;
-        } else if (this.percentage > 40) {
-            return 2;
-        } else if (this.percentage > 20) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return Math.floor(this.percentage / 20);
+    }
+
+    // Zeichnet den Balken und den genauen Wert, damit auch kleine Treffer sichtbar sind.
+    draw(ctx) {
+        super.draw(ctx);
+
+        ctx.save();
+        ctx.fillStyle = '#302016';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.percentage + '%', this.x + 109, this.y + 39);
+        ctx.restore();
     }
 }

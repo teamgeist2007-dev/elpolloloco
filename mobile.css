@@ -70,12 +70,6 @@
     .game-page .mobile-controls button {
         touch-action: none;
     }
-
-    /* Legt die Mindestgröße der Touch-Buttons fest. */
-    .game-page .mobile-controls button {
-        min-width: 44px;
-        min-height: 44px;
-    }
 }
 
 /* Diese Regeln greifen zusätzlich, wenn das Handy quer gehalten wird. */
@@ -99,12 +93,13 @@
         display: none;
     }
 
-    /* Teilt das Querformat in linke Buttons, Spielfeld und rechte Buttons auf. */
+    /* Zentriert das Spielfeld und den kleinen Impressum-Link im Querformat. */
     .game-page #game-container,
     .game-page #game-container.fullscreen {
-        display: grid;
-        grid-template-columns: 74px minmax(0, 1fr) 74px;
-        grid-template-rows: 44px 1fr auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         height: 100%;
     }
 
@@ -115,61 +110,10 @@
         overflow: hidden;
     }
 
-    /* Zentriert das Spielfeld zwischen den Buttons und hält es im Verhältnis 3 zu 2. */
+    /* Es bleiben 52 Pixel für die Ränder und den Impressum-Link frei. */
     .game-page #game-stage,
     .game-page #game-container.fullscreen #game-stage {
-        grid-column: 2;
-        grid-row: 1 / 4;
-        align-self: center;
-        justify-self: center;
-
-        /* 30px Rand abziehen. Das Spielfeld ist 1,5-mal so breit wie hoch. */
-        width: min(100%, calc((100svh - 30px) * 1.5));
-    }
-
-    /* Lässt das Raster die einzelnen Button-Gruppen und Links direkt platzieren. */
-    .game-page .mobile-controls,
-    .game-page .impressum-footer {
-        display: contents;
-    }
-
-    /* Stellt die beiden Buttons jeder Gruppe im Querformat untereinander. */
-    .game-page .mobile-controls > div {
-        grid-row: 2;
-        align-self: center;
-        justify-self: center;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    /* Platziert die Laufbuttons und den Tonknopf links. */
-    .game-page .mobile-controls > div:first-child,
-    .game-page #sound-toggle {
-        grid-column: 1;
-    }
-
-    /* Platziert Springen, Werfen und den Impressum-Link rechts. */
-    .game-page .mobile-controls > div:last-child,
-    .game-page .impressum-footer a {
-        grid-column: 3;
-    }
-
-    /* Setzt die zusätzlichen Bedienelemente an den Rand des Spielfelds. */
-    .game-page .impressum-footer > * {
-        grid-row: 1;
-        display: grid;
-        place-content: center;
-        margin: 0 2px;
-        padding: 4px 2px;
-        font: 700 12px/1.2 Arial, sans-serif;
-        text-align: center;
-    }
-
-    /* Setzt den Vollbildbutton im Querformat unten links. */
-    .game-page #fullscreen-button {
-        grid-column: 1;
-        grid-row: 3;
-        min-height: 44px;
+        width: min(100%, max(1px, calc((100svh - 52px) * 1.5)));
+        flex-shrink: 0;
     }
 }

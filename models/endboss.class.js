@@ -77,13 +77,13 @@ class Endboss extends MovableObject {
         this.lastHit = Date.now();
     }
 
-    // Zeichnet die Lebensanzeige des Endbosses oben rechts.
+    // Zeichnet die Lebensanzeige des Endbosses links neben den Symbolen.
     drawHealthBar(ctx) {
         const index = Math.ceil(this.energy / 20);
         const image = this.imageCache[this.IMAGES_HEALTH[index]];
 
         if (image.complete && image.naturalWidth > 0) {
-            ctx.drawImage(image, 515, 6, 180, 48);
+            ctx.drawImage(image, 442, 6, 166, 46);
         }
     }
 

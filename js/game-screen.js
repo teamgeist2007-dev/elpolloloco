@@ -93,7 +93,8 @@ async function toggleFullscreen() {
             world.canvas.focus({ preventScroll: true });
         }
     } catch (error) {
-        fullscreenButton.textContent = 'Vollbild nicht verfügbar';
+        fullscreenButton.title = 'Vollbild nicht verfügbar';
+        fullscreenButton.setAttribute('aria-label', 'Vollbild nicht verfügbar');
     }
 }
 
@@ -104,9 +105,8 @@ function updateFullscreenButton() {
 
     gameContainer.classList.toggle('fullscreen', isFullscreen);
 
-    if (isFullscreen) {
-        fullscreenButton.textContent = 'Vollbild beenden';
-    } else {
-        fullscreenButton.textContent = 'Vollbild';
-    }
+    const label = isFullscreen ? 'Vollbild beenden' : 'Vollbild';
+    fullscreenButton.textContent = isFullscreen ? '✕' : '⛶';
+    fullscreenButton.title = label;
+    fullscreenButton.setAttribute('aria-label', label);
 }

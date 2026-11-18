@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="game-screen.css">
     <link rel="stylesheet" href="impressum.css">
     <link rel="stylesheet" href="mobile.css">
+    <link rel="icon" type="image/png" href="img/3_enemies_chicken/chicken_small/1_walk/1_w.png">
     <title>El Pollo Loco</title>
 
 
@@ -52,20 +53,34 @@
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Die Touch-Buttons sind in Laufen links sowie Springen und Werfen rechts aufgeteilt. -->
-        <div class="mobile-controls">
-            <div>
-                <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
-                <button id="btnRight" type="button" aria-label="Nach rechts laufen">›</button>
+            <!-- Die Touch-Buttons sind in Laufen links sowie Springen und Werfen rechts aufgeteilt. -->
+            <div class="mobile-controls">
+                <div>
+                    <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
+                    <button id="btnRight" type="button" aria-label="Nach rechts laufen">›</button>
+                </div>
+
+                <div>
+                    <button id="btnJump" type="button" aria-label="Springen">↑</button>
+                    <button id="btnThrow" type="button" aria-label="Flasche werfen">
+                        <img src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
+                    </button>
+                </div>
             </div>
 
-            <div>
-                <button id="btnJump" type="button" aria-label="Springen">↑</button>
-                <button id="btnThrow" type="button" aria-label="Flasche werfen">
-                    <img src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
-                </button>
+            <div class="game-toolbar">
+                <button id="sound-toggle" type="button" title="Ton ausschalten" aria-label="Ton ausschalten">🔊</button>
+                <!-- JavaScript zeigt diesen Button an, sobald Vollbild verfügbar ist. -->
+                <button id="fullscreen-button" type="button" title="Vollbild" aria-label="Vollbild" hidden>⛶</button>
+
+                <details id="music-settings" class="music-settings">
+                    <summary title="Musiklautstärke" aria-label="Musiklautstärke">♫</summary>
+                    <div class="music-volume-panel">
+                        <label for="music-volume">Musik 20 %</label>
+                        <input id="music-volume" type="range" min="0" max="100" value="20">
+                    </div>
+                </details>
             </div>
         </div>
 
@@ -77,16 +92,9 @@
             <span><kbd>D</kbd> Flasche werfen</span>
         </p>
 
-        <!-- Enthält Ton, Vollbild und den Link zum Impressum. -->
+        <!-- Enthält den Link zum Impressum. -->
         <footer class="impressum-footer">
-            <button id="sound-toggle" class="impressum-link" type="button">
-                Ton ausschalten
-            </button>
-            <!-- JavaScript zeigt diesen Button an, sobald Vollbild verfügbar ist. -->
-            <button id="fullscreen-button" class="impressum-link" type="button" hidden>
-                Vollbild
-            </button>
-            <a class="impressum-link" href="impressum.html">Impressum</a>
+            <a href="impressum.html">Impressum</a>
         </footer>
 
         <!-- Das Fenster mit den Spielregeln öffnet sich über dem Spielbereich. -->

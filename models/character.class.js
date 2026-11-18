@@ -83,10 +83,14 @@ class Character extends MovableObject {
 
     // Zieht Leben ab und weckt Pepe. Der Trefferschutz verhindert mehrere Treffer direkt hintereinander.
     hit(damage = 5) {
-        if (this.isDead() || this.isHurt()) return false;
+        const now = Date.now();
+        // Hühner treffen alle 500 ms, der Endboss alle 1000 ms.
+        const hitInterval = damage === 5 ? 500 : 1000;
+
+        if (this.isDead() || now - this.lastHit < hitInterval) return false;
 
         this.energy = Math.max(0, this.energy - damage);
-        this.lastHit = Date.now();
+        this.lastHit = now;
         this.lastActiveAt = performance.now();
         this.isSleeping = false;
         return true;

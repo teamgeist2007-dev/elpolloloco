@@ -42,14 +42,24 @@ canvas {
     background: black;
 }
 
-/* Platziert die linke und rechte Gruppe der Touch-Buttons. */
+/* Platziert die Touch-Buttons in den unteren Ecken des Spielfelds. */
 .mobile-controls {
-    display: flex;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    z-index: 1;
+    display: none;
     justify-content: space-between;
-    gap: 8px;
-    margin: 8px 12px 0;
-    touch-action: none;
+    pointer-events: none;
     user-select: none;
+}
+
+/* Zeigt die Touch-Buttons während der Runde auf Handys und kleinen Displays. */
+@media (hover: none) and (pointer: coarse), (max-width: 760px) {
+    #game-screen[hidden] ~ .mobile-controls {
+        display: flex;
+    }
 }
 
 /* Zeichnet den dunklen Hintergrund hinter einer Gruppe von Touch-Buttons. */
@@ -57,7 +67,7 @@ canvas {
     display: flex;
     gap: 6px;
     padding: 4px;
-    border-radius: 24px;
+    border-radius: 32px;
     background: rgba(43, 26, 18, 0.85);
 }
 
@@ -65,24 +75,31 @@ canvas {
 .mobile-controls button {
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: clamp(46px, 5vw, 62px);
+    height: clamp(46px, 5vw, 62px);
     padding: 0;
     border: 1px solid #e6b95c;
     border-radius: 50%;
     background: linear-gradient(#ffda78, #e79a36);
     color: #38200c;
-    font: bold 20px Arial, sans-serif;
+    font: bold 25px Arial, sans-serif;
+    touch-action: none;
+    pointer-events: auto;
+}
+
+/* Zeigt die Hand beim Überfahren eines Buttons oder Links. */
+.game-page button,
+.game-page a {
     cursor: pointer;
 }
 
-/* Gibt einem gerade gedrückten Button eine sichtbare Rückmeldung. */
+/* Hebt den Touch-Button beim Überfahren oder Drücken hervor. */
+.mobile-controls button:hover,
 .mobile-controls button:active {
     background: #ffda78;
-    transform: translateY(1px);
 }
 
-/* Blendet den Fokusrahmen bei einer Bedienung mit Maus oder Touch aus, wenn kein sichtbarer Tastaturfokus nötig ist. */
+/* Blendet den Fokusrahmen bei Maus- oder Touch-Bedienung aus. */
 .mobile-controls button:focus:not(:focus-visible) {
     outline: none;
 }
@@ -101,7 +118,6 @@ canvas {
     pointer-events: none;
 }
 
-/* Smartphones: kleine Bildschirmbreite */
 /* Auf schmalen Bildschirmen nutzt das Spiel die verfügbare Breite. */
 @media only screen and (max-width: 760px) {
     #game-container {
@@ -109,7 +125,6 @@ canvas {
     }
 }
 
-/* Smartphones: kleine Bildschirmhöhe */
 /* Bei wenig Höhe werden Titel und Spielbereich kleiner. */
 @media only screen and (max-height: 480px) {
     h1 {
@@ -118,15 +133,6 @@ canvas {
 
     #game-container {
         max-width: min(100%, max(1px, calc((100dvh - 175px) * 1.5)));
-    }
-}
-
-/* Smartphones und Tablets: größere Tippflächen */
-/* Vergrößert die Tippflächen auf Geräten mit Touch-Eingabe. */
-@media (any-pointer: coarse) {
-    .mobile-controls button {
-        width: 44px;
-        height: 44px;
     }
 }
 
@@ -153,4 +159,12 @@ canvas {
     background-color: #ffd27a;
     color: #302016;
     font: inherit;
+}
+
+/* Auf sehr kleinen Spielflächen brauchen die Button-Gruppen weniger Platz. */
+@media (max-width: 360px), (max-height: 300px) {
+    .mobile-controls > div {
+        gap: 4px;
+        padding: 3px;
+    }
 }

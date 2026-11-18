@@ -35,13 +35,18 @@
     font-style: normal;
 }
 
-/* Zentriert die Buttons und den Impressum-Link unter dem Spiel. */
+/* Der Impressum-Link bleibt klein unter dem Spiel erreichbar. */
 .impressum-footer {
-    margin-top: 12px;
+    margin-top: 4px;
     text-align: center;
+    font: 700 13px/1.3 Arial, sans-serif;
 }
 
-/* Gibt dem Impressum-Link und den zugehörigen Buttons denselben Stil. */
+.impressum-footer a {
+    color: #302016;
+}
+
+/* Gestaltet den Zurück-Link auf der Impressumsseite. */
 .impressum-link {
     display: inline-block;
     padding: 8px 14px;
