@@ -1,17 +1,28 @@
-/* Zentriert das Impressum auf dem Wüstenhintergrund. */
+/* Der Hintergrund füllt die ganze Seite einschließlich der äußeren Ränder. */
+html {
+    min-height: 100%;
+    background: #bc6c32 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+}
+
+/* Zentriert das Impressum und passt sich längeren Inhalten an. */
 .impressum-page {
     box-sizing: border-box;
     display: grid;
     place-items: center;
-    min-height: 100svh;
+    width: 100%;
+    min-height: 100dvh;
     margin: 0;
     padding: 20px;
-    background: url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    padding-top: max(20px, env(safe-area-inset-top, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
     color: #302016;
     font-family: Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
 }
 
-/* Macht die Angaben mit einer hellen, mittig ausgerichteten Fläche gut lesbar. */
+/* Helle Karte für gut lesbare Kontaktdaten. */
 .impressum-card {
     box-sizing: border-box;
     width: min(100%, 480px);
@@ -23,19 +34,17 @@
     overflow-wrap: anywhere;
 }
 
-/* Bestimmt Größe und Abstand der Impressum-Überschrift. */
 .impressum-card h1 {
     margin: 0 0 20px;
     font-size: clamp(32px, 6vw, 48px);
     line-height: 1.1;
 }
 
-/* Zeigt die Adresse in normaler Schrift statt kursiv. */
 .impressum-card address {
     font-style: normal;
 }
 
-/* Der Impressum-Link bleibt klein unter dem Spiel erreichbar. */
+/* Der Impressum-Link unter dem Spiel bleibt klein. */
 .impressum-footer {
     margin-top: 4px;
     text-align: center;
@@ -46,7 +55,7 @@
     color: #302016;
 }
 
-/* Gestaltet den Zurück-Link auf der Impressumsseite. */
+/* Zurück-Link auf der Impressumsseite. */
 .impressum-link {
     display: inline-block;
     padding: 8px 14px;
