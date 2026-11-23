@@ -1,28 +1,22 @@
 /**
- * Basis für bewegliche Objekte wie Pepe, Hühner und Flaschen.
+ * Basisklasse für bewegliche Spielfiguren und Flaschen.
  */
 class MovableObject extends DrawableObject {
-    // Geschwindigkeit nach links oder rechts.
     speed = 0.15;
-
-    // Bei true wird die Figur gespiegelt.
     otherDirection = false;
-
-    // Positive Werte bewegen das Objekt nach oben.
     speedY = 0;
-
-    // Veränderung der vertikalen Geschwindigkeit durch die Schwerkraft.
     acceleration = 2.5;
-
     energy = 100;
     lastHit = 0;
 
     /**
-     * Lässt das Objekt durch die Schwerkraft steigen oder fallen.
-     * @returns {number} Nummer des Timers, damit er gestoppt werden kann.
+     * Startet die Schwerkraft und berücksichtigt die Spielpause.
+     * @returns {number} Nummer des Timers.
      */
     applyGravity() {
         return setInterval(() => {
+            if (world?.paused) return;
+
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
@@ -31,7 +25,7 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Prüft, ob das Objekt in der Luft ist.
+     * Prüft, ob sich das Objekt in der Luft befindet.
      * @returns {boolean} Ob die Schwerkraft weiter wirken soll.
      */
     isAboveGround() {
@@ -57,24 +51,24 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Prüft die Zeit seit dem letzten Treffer.
-     * @returns {boolean} Ob der letzte Treffer weniger als eine Sekunde her ist.
+     * Prüft, ob der letzte Treffer weniger als eine Sekunde her ist.
+     * @returns {boolean} Ob das Objekt gerade getroffen wurde.
      */
     isHurt() {
         return Date.now() - this.lastHit < 1000;
     }
 
     /**
-     * Prüft die verbleibenden Lebenspunkte.
-     * @returns {boolean} Ob die Lebenspunkte auf null stehen.
+     * Prüft, ob keine Lebenspunkte mehr übrig sind.
+     * @returns {boolean} Ob das Objekt besiegt ist.
      */
     isDead() {
         return this.energy == 0;
     }
 
     /**
-     * Zeigt das nächste Bild der ausgewählten Animation.
-     * @param {string[]} images - Dateipfade der Animationsbilder.
+     * Zeigt das nächste Bild einer wiederholten Animation.
+     * @param {string[]} images - Bilder der Animation.
      */
     playAnimation(images) {
         const index = this.currentImage % images.length;
@@ -98,7 +92,7 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * Startet einen Sprung mit einer Geschwindigkeit nach oben.
+     * Startet den Sprung mit einer Geschwindigkeit nach oben.
      */
     jump() {
         this.speedY = 30;

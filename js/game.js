@@ -1,8 +1,12 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let mobileControlsBound = false;
 
-// Verbindet die Tastencodes mit den Namen in der Steuerung.
+const portraitScreen = window.matchMedia(
+    '(orientation: portrait) and (any-pointer: coarse)'
+);
+
 const gameKeys = {
     ArrowLeft: 'LEFT',
     ArrowRight: 'RIGHT',
@@ -13,25 +17,32 @@ const gameKeys = {
 };
 
 /**
- * Baut das Level auf und startet eine neue Spielrunde.
+ * Baut eine neue Runde auf und verbindet die Steuerung.
  */
 function init() {
+    world?.stop();
+    keyboard = new Keyboard();
     canvas = document.getElementById('canvas');
+
     initLevel();
     world = new World(canvas, keyboard);
-    bindMobileControls();
+
+    if (!mobileControlsBound) {
+        bindMobileControls();
+        mobileControlsBound = true;
+    }
+
+    updateGamePause();
 }
 
-// Speichert gedrückte Spieltasten.
 window.addEventListener('keydown', (event) => {
     const key = gameKeys[event.code];
-    if (!key || !world || world.gameFinished) return;
+    if (!key || !world || world.gameFinished || world.paused) return;
 
     event.preventDefault();
     keyboard[key] = true;
 });
 
-// Setzt losgelassene Spieltasten zurück.
 window.addEventListener('keyup', (event) => {
     const key = gameKeys[event.code];
     if (key) keyboard[key] = false;
@@ -48,15 +59,15 @@ function bindMobileControls() {
 }
 
 /**
- * Verbindet einen Touch-Button mit einer Spieltaste.
- * @param {string} id - ID des Buttons in der HTML-Datei.
- * @param {string} key - Name der zugehörigen Spieltaste.
+ * Verarbeitet Drücken und Loslassen eines Touch-Buttons.
+ * @param {string} id - ID des Buttons.
+ * @param {string} key - Zugehörige Spieltaste.
  */
 function bindMobileButton(id, key) {
     const button = document.getElementById(id);
 
     button.addEventListener('pointerdown', (event) => {
-        if (event.button !== 0 || world.gameFinished) return;
+        if (event.button !== 0 || world.gameFinished || world.paused) return;
 
         event.preventDefault();
         button.setPointerCapture(event.pointerId);
@@ -74,3 +85,26 @@ function bindMobileButton(id, key) {
     button.addEventListener('pointercancel', releaseButton);
     button.addEventListener('lostpointercapture', releaseButton);
 }
+
+/**
+ * Pausiert das Spiel im Hochformat, im Hintergrund oder in der Anleitung.
+ */
+function updateGamePause() {
+    if (!world || world.gameFinished) return;
+
+    world.paused = portraitScreen.matches || document.hidden ||
+        document.getElementById('game-help').open;
+
+    world.keyboard = keyboard = new Keyboard();
+    gameAudio.setLoop('characterRun', false);
+    gameAudio.setLoop('characterSnoring', false);
+    gameAudio.updateMusic();
+}
+
+portraitScreen.addEventListener('change', updateGamePause);
+document.addEventListener('visibilitychange', updateGamePause);
+
+window.addEventListener('blur', () => {
+    keyboard = new Keyboard();
+    if (world) world.keyboard = keyboard;
+});

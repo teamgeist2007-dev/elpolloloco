@@ -1,16 +1,14 @@
 /**
- * Beschreibt Pepe, die vom Spieler gesteuerte Figur.
+ * Pepe ist die vom Spieler gesteuerte Figur.
  */
 class Character extends MovableObject {
     height = 250;
     y = 80;
     speed = 10;
-
-    // Zeitpunkt der letzten Bewegung oder eines Treffers.
     lastActiveAt = performance.now();
     isSleeping = false;
+    world;
 
-    // Bilder für Pepes Laufanimation.
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
@@ -20,7 +18,6 @@ class Character extends MovableObject {
         'img/2_character_pepe/2_walk/W-26.png'
     ];
 
-    // Bilder für Pepes Sprung.
     IMAGES_JUMPING = [
         'img/2_character_pepe/3_jump/J-31.png',
         'img/2_character_pepe/3_jump/J-32.png',
@@ -33,7 +30,6 @@ class Character extends MovableObject {
         'img/2_character_pepe/3_jump/J-39.png'
     ];
 
-    // Bilder für Pepes Niederlage.
     IMAGES_DEAD = [
         'img/2_character_pepe/5_dead/D-51.png',
         'img/2_character_pepe/5_dead/D-52.png',
@@ -44,14 +40,12 @@ class Character extends MovableObject {
         'img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    // Bilder für die Trefferanimation.
     IMAGES_HURT = [
         'img/2_character_pepe/4_hurt/H-41.png',
         'img/2_character_pepe/4_hurt/H-42.png',
         'img/2_character_pepe/4_hurt/H-43.png'
     ];
 
-    // Bilder für Pepes Schlafanimation.
     IMAGES_SLEEPING = [
         'img/2_character_pepe/1_idle/long_idle/I-11.png',
         'img/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -64,8 +58,6 @@ class Character extends MovableObject {
         'img/2_character_pepe/1_idle/long_idle/I-19.png',
         'img/2_character_pepe/1_idle/long_idle/I-20.png'
     ];
-
-    world;
 
     /**
      * Lädt die Bilder und startet Schwerkraft, Bewegung und Animation.
@@ -80,19 +72,18 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_SLEEPING);
-        this.applyGravity();
+
+        this.gravityInterval = this.applyGravity();
         this.animate();
     }
 
     /**
-     * Zieht bei einem gültigen Treffer Leben ab und weckt Pepe.
+     * Zieht Leben ab und verhindert Treffer direkt hintereinander.
      * @param {number} [damage=5] - Schaden durch den Gegner.
-     * @returns {boolean} Ob der Treffer tatsächlich Leben abgezogen hat.
+     * @returns {boolean} Ob der Treffer Leben abgezogen hat.
      */
     hit(damage = 5) {
         const now = Date.now();
-
-        // Hühner treffen alle 500 ms, der Endboss alle 1000 ms.
         const hitInterval = damage === 5 ? 500 : 1000;
 
         if (this.isDead() || now - this.lastHit < hitInterval) return false;
@@ -105,56 +96,105 @@ class Character extends MovableObject {
     }
 
     /**
-     * Steuert Pepes Bewegung und wählt die passende Animation aus.
+     * Startet getrennte Timer für Bewegung und Bilder.
      */
     animate() {
-        // Dieser Timer verarbeitet die gedrückten Spieltasten.
-        setInterval(() => {
-            const { keyboard, level } = this.world;
+        this.moveInterval = setInterval(() => this.updateMovement(), 1000 / 60);
+        this.animationInterval = setInterval(() => this.updateAnimation(), 50);
+    }
 
-            if (keyboard.RIGHT && this.x < level.level_end_x) {
-                this.moveRight();
-                this.otherDirection = false;
-            }
+    /**
+     * Bewegt Pepe und führt die Kamera nach.
+     */
+    updateMovement() {
+        if (!this.world || this.world.gameFinished || this.world.paused) return;
 
-            if (keyboard.LEFT && this.x > 0) {
-                this.moveLeft();
-                this.otherDirection = true;
-            }
+        this.moveCharacter();
+        this.updateIdleTime();
+        this.world.camera_x = -this.x + 100;
+    }
 
-            if (keyboard.SPACE && !this.isAboveGround()) {
-                this.jump();
-            }
+    /**
+     * Verarbeitet die Tasten zum Laufen und Springen.
+     */
+    moveCharacter() {
+        const { keyboard, level } = this.world;
 
-            // Bewegung startet die Wartezeit fürs Einschlafen neu.
-            if (keyboard.LEFT || keyboard.RIGHT || this.isAboveGround() || this.speedY > 0) {
-                this.lastActiveAt = performance.now();
-                this.isSleeping = false;
-            }
+        if (keyboard.RIGHT && this.x < level.level_end_x) {
+            this.moveRight();
+            this.otherDirection = false;
+        }
 
-            // Die Kamera folgt Pepe.
-            this.world.camera_x = -this.x + 100;
-        }, 1000 / 60);
+        if (keyboard.LEFT && this.x > 0) {
+            this.moveLeft();
+            this.otherDirection = true;
+        }
 
-        // Dieser Timer wählt Pepes aktuelles Bild.
-        setInterval(() => {
-            const { keyboard } = this.world;
+        if (keyboard.SPACE && !this.isAboveGround()) this.jump();
+    }
+
+    /**
+     * Setzt bei Bewegung die Wartezeit fürs Einschlafen zurück.
+     */
+    updateIdleTime() {
+        const { LEFT, RIGHT } = this.world.keyboard;
+
+        if (LEFT || RIGHT || this.isAboveGround() || this.speedY > 0) {
+            this.lastActiveAt = performance.now();
             this.isSleeping = false;
+        }
+    }
 
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-            } else if (Date.now() - this.lastHit < 250) {
-                this.playAnimation(this.IMAGES_HURT);
-            } else if (this.isAboveGround() || this.speedY > 0) {
-                this.playAnimation(this.IMAGES_JUMPING);
-            } else if (keyboard.RIGHT || keyboard.LEFT) {
-                this.playAnimation(this.IMAGES_WALKING);
-            } else if (performance.now() - this.lastActiveAt >= 5000) {
-                this.playAnimation(this.IMAGES_SLEEPING);
-                this.isSleeping = true;
-            } else {
-                this.img = this.standingImage;
-            }
-        }, 50);
+    /**
+     * Wählt die passende Animation für Pepes Zustand.
+     */
+    updateAnimation() {
+        if (!this.world || this.world.gameFinished || this.world.paused) return;
+
+        this.isSleeping = false;
+
+        if (this.isDead()) {
+            this.playAnimation(this.IMAGES_DEAD);
+        } else if (Date.now() - this.lastHit < 250) {
+            this.playAnimation(this.IMAGES_HURT);
+        } else if (this.isAboveGround() || this.speedY > 0) {
+            this.showJumpImage();
+        } else {
+            this.showGroundAnimation();
+        }
+    }
+
+    /**
+     * Ordnet dem Aufsteigen und Fallen einmalig die neun Sprungbilder zu.
+     */
+    showJumpImage() {
+        const progress = (30 - this.speedY) / 60;
+        const index = Math.max(0, Math.min(8, Math.floor(progress * 9)));
+        this.img = this.imageCache[this.IMAGES_JUMPING[index]];
+    }
+
+    /**
+     * Zeigt am Boden Laufen, Schlafen oder die normale Standpose.
+     */
+    showGroundAnimation() {
+        const { LEFT, RIGHT } = this.world.keyboard;
+
+        if (LEFT || RIGHT) {
+            this.playAnimation(this.IMAGES_WALKING);
+        } else if (performance.now() - this.lastActiveAt >= 5000) {
+            this.playAnimation(this.IMAGES_SLEEPING);
+            this.isSleeping = true;
+        } else {
+            this.img = this.standingImage;
+        }
+    }
+
+    /**
+     * Beendet alle Timer von Pepe vor dem Neustart.
+     */
+    stop() {
+        clearInterval(this.gravityInterval);
+        clearInterval(this.moveInterval);
+        clearInterval(this.animationInterval);
     }
 }

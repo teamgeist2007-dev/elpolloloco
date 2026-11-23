@@ -1,56 +1,63 @@
-/* Passt das Spiel an Touch-Geräte und kleine Bildschirme an. */
-@media (hover: none) and (pointer: coarse), (max-width: 760px) {
-    html {
-        background: #bc6c32 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
-    }
+/* Auf großen Bildschirmen mit Maus bleiben die Touch-Buttons ausgeblendet. */
+.game-page #game-screen[hidden] ~ .mobile-controls {
+    display: none;
+}
 
-    /* Legt Größe und Randabstände der Spielseite fest. */
+/* Dieser Hinweis erscheint nur auf Touch-Geräten im Hochformat. */
+#rotate-hint {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    box-sizing: border-box;
+    place-content: center;
+    padding: 24px;
+    background: #302016 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    color: #302016;
+    text-align: center;
+    font: bold 24px/1.4 Arial, sans-serif;
+}
+
+#rotate-hint span {
+    font-size: 80px;
+}
+
+#rotate-hint p {
+    max-width: 400px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #fff3dd;
+}
+
+/* Handys, Tablets und kleine Bildschirme bekommen Touch-Buttons. */
+@media (any-pointer: coarse), (max-width: 760px) {
     body.game-page {
         box-sizing: border-box;
         width: 100%;
-        height: auto;
         min-height: 100svh;
         margin: 0;
         padding: 8px;
-        padding-top: max(8px, env(safe-area-inset-top, 0px));
-        padding-right: max(8px, env(safe-area-inset-right, 0px));
-        padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
-        padding-left: max(8px, env(safe-area-inset-left, 0px));
         background: none;
         -webkit-text-size-adjust: 100%;
     }
 
-    /* Verkleinert den Titel auf dem Handy. */
-    .game-page > h1 {
-        margin: 0 0 12px;
-        font-size: 36px;
-    }
-
-    /* Nutzt die verfügbare Bildschirmbreite. */
     .game-page #game-container,
     .game-page #game-stage {
         width: 100%;
         max-width: none;
     }
 
-    /* Lässt hochkant Platz für die Buttons unter dem Spielbild. */
     .game-page #game-stage {
         margin: 0 0 68px;
-        flex-shrink: 0;
     }
 
-    /* Passt das Canvas an seine verfügbare Breite an. */
-    .game-page #game-stage #canvas {
-        display: block;
+    .game-page #canvas {
         width: 100%;
         height: auto;
-        max-width: none;
-        max-height: none;
+        touch-action: none;
     }
 
-    /* Platziert die Buttons hochkant unter dem Spielfeld. */
     .game-page .mobile-controls {
-        position: absolute;
         top: auto;
         right: 0;
         bottom: -64px;
@@ -58,83 +65,61 @@
         transform: none;
     }
 
-    /* Stellt die beiden Buttons jeder Gruppe nebeneinander. */
     .game-page .mobile-controls > div {
-        display: flex;
         flex-direction: row;
         gap: 6px;
         padding: 4px;
     }
 
-    /* Legt die Größe der Tippflächen fest. */
     .game-page .mobile-controls button {
         width: 52px;
         height: 52px;
-        touch-action: none;
     }
 
-    /* Zeigt die Buttons während der laufenden Runde. */
     .game-page #game-screen[hidden] ~ .mobile-controls {
         display: flex;
     }
 
-    /* Die Tastaturbelegung steht auf dem Handy in der Anleitung. */
     .game-page .keyboard-help {
         display: none;
     }
 
-    /* Verhindert versehentliches Markieren beim Spielen. */
-    .game-page > h1,
     .game-page #game-stage {
         -webkit-user-select: none;
         user-select: none;
         -webkit-touch-callout: none;
     }
+}
 
-    /* Verhindert Scrollgesten auf dem Spielfeld. */
-    .game-page #canvas {
-        touch-action: none;
-    }
-
-    /* Legt den Abstand für die Vollbildansicht im Hochformat fest. */
-    .game-page #game-container.fullscreen {
-        padding: 12px;
-    }
-
-    /* Berechnet die Spielfeldgröße im Hochformat-Vollbild. */
-    .game-page #game-container.fullscreen #game-stage {
-        width: min(100%, max(1px, calc((100svh - 110px) * 1.5)));
+/* Im Hochformat verdeckt der Drehhinweis das pausierte Spiel. */
+@media (orientation: portrait) and (any-pointer: coarse) {
+    #rotate-hint {
+        display: grid;
     }
 }
 
-/* Nutzt im Querformat die gesamte verfügbare Höhe. */
-@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
-    /* Verhindert das Scrollen der Spielseite. */
+/* Querformat nutzt die verfügbare Höhe. Die Tasten liegen nebeneinander. */
+@media (orientation: landscape) and (any-pointer: coarse) {
     html,
     body.game-page {
         overflow: hidden;
         overscroll-behavior: none;
     }
 
-    /* svh hält die Spielhöhe beim Umschalten der Browserleiste stabil. */
     body.game-page {
         height: 100svh;
-        margin: 0;
         padding: 0;
     }
 
-    /* Gibt den Platz des Titels für das Spiel frei. */
     .game-page > h1 {
         display: none;
     }
 
-    /* Füllt die verfügbare Browserfläche mit dem Spielbereich. */
     .game-page #game-container,
     .game-page #game-container.fullscreen {
         position: fixed;
         top: 0;
         left: 0;
-        box-sizing: border-box;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -146,7 +131,6 @@
         overflow: hidden;
     }
 
-    /* Vergrößert das Spielbild und erhält sein Verhältnis von 3 zu 2. */
     .game-page #game-stage,
     .game-page #game-container.fullscreen #game-stage {
         width: min(100%, calc(100svh * 1.5));
@@ -155,31 +139,14 @@
         flex-shrink: 0;
     }
 
-    /* Setzt die Steuerung an die unteren Ecken der Bildschirmfläche. */
     .game-page .mobile-controls {
         position: fixed;
-        top: auto;
         right: max(8px, env(safe-area-inset-right, 0px));
         bottom: max(8px, env(safe-area-inset-bottom, 0px));
         left: max(8px, env(safe-area-inset-left, 0px));
         z-index: 3;
-        justify-content: space-between;
-        transform: none;
     }
 
-    /* Stellt Laufen sowie Springen und Werfen jeweils nebeneinander. */
-    .game-page .mobile-controls > div {
-        flex-direction: row;
-        gap: 6px;
-        padding: 4px;
-    }
-
-    .game-page .mobile-controls button {
-        width: 52px;
-        height: 52px;
-    }
-
-    /* Platziert den kleinen Projektlink unten in der Mitte. */
     .game-page .impressum-footer {
         position: absolute;
         bottom: 4px;

@@ -1,5 +1,5 @@
 /**
- * Beschreibt Bewegung, Treffer und Lebensanzeige des Endbosses.
+ * Verwaltet Bewegung, Animation und Lebensanzeige des Endbosses.
  */
 class Endboss extends MovableObject {
     x = 2600;
@@ -8,8 +8,16 @@ class Endboss extends MovableObject {
     height = 500;
     speed = 3;
     isChasing = false;
+    isMoving = false;
 
     IMAGES_WALKING = [
+        'img/4_enemie_boss_chicken/1_walk/G1.png',
+        'img/4_enemie_boss_chicken/1_walk/G2.png',
+        'img/4_enemie_boss_chicken/1_walk/G3.png',
+        'img/4_enemie_boss_chicken/1_walk/G4.png'
+    ];
+
+    IMAGES_ALERT = [
         'img/4_enemie_boss_chicken/2_alert/G5.png',
         'img/4_enemie_boss_chicken/2_alert/G6.png',
         'img/4_enemie_boss_chicken/2_alert/G7.png',
@@ -25,36 +33,43 @@ class Endboss extends MovableObject {
     );
 
     /**
-     * Lädt die Bilder und startet Bewegung und Animation.
+     * Lädt die Bilder und startet die Timer.
      */
     constructor() {
         super();
         this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_ALERT);
         this.loadImages(this.IMAGES_HEALTH);
-        this.img = this.imageCache[this.IMAGES_WALKING[0]];
+        this.img = this.imageCache[this.IMAGES_ALERT[0]];
         this.animate();
     }
 
     /**
-     * Startet die Timer für Verfolgung und Animation.
+     * Prüft regelmäßig Bewegung und Animation.
      */
     animate() {
         this.moveInterval = setInterval(() => {
             this.followCharacter();
         }, 1000 / 60);
 
-        this.animationInterval = setInterval(() => {
-            if (this.isChasing && !world?.gameFinished) {
-                this.playAnimation(this.IMAGES_WALKING);
-            }
-        }, 150);
+        this.animationInterval = setInterval(() => this.updateAnimation(), 150);
+    }
+
+    /**
+     * Zeigt beim Laufen die Laufbilder und im Stand die Alarmbilder.
+     */
+    updateAnimation() {
+        if (!world || world.gameFinished || world.paused || !this.isChasing) return;
+
+        this.playAnimation(this.isMoving ? this.IMAGES_WALKING : this.IMAGES_ALERT);
     }
 
     /**
      * Verfolgt Pepe, sobald er nahe genug ist, und läuft bis zum Kontakt.
      */
     followCharacter() {
-        if (!world || world.gameFinished || this.isDead()) return;
+        this.isMoving = false;
+        if (!world || world.gameFinished || world.paused || this.isDead()) return;
 
         const pepe = world.getCharacterHitbox();
         const boss = world.getEnemyHitbox(this);
@@ -64,18 +79,17 @@ class Endboss extends MovableObject {
         if (!this.isChasing) return;
 
         this.otherDirection = distance > 0;
-
-        // Berechnet die Lücke zwischen den Trefferflächen.
         const gap = distance < 0 ? boss.left - pepe.right : pepe.left - boss.right;
 
         if (gap >= 0) {
+            this.isMoving = true;
             this.x += Math.sign(distance) * Math.min(this.speed, gap + 1);
         }
     }
 
     /**
-     * Zieht dem Endboss bei einem Flaschentreffer Leben ab.
-     * @param {number} [damage=20] - Schaden eines Flaschentreffers.
+     * Zieht bei einem Flaschentreffer Lebenspunkte ab.
+     * @param {number} [damage=20] - Schaden des Treffers.
      */
     hit(damage = 20) {
         this.energy = Math.max(0, this.energy - damage);
@@ -83,8 +97,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Zeichnet die Lebensanzeige neben den Symbolen für Ton und Vollbild.
-     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich der Anzeige.
+     * Zeichnet die feste Lebensanzeige oben im Spielfeld.
+     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich.
      */
     drawHealthBar(ctx) {
         const index = Math.ceil(this.energy / 20);
@@ -96,7 +110,7 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Stoppt beide Timer des Endbosses.
+     * Beendet die Bewegungs- und Animationstimer.
      */
     stop() {
         clearInterval(this.moveInterval);

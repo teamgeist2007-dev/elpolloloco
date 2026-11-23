@@ -2,48 +2,43 @@
 <html lang="de">
 
 <head>
-    <!-- Ermöglicht Umlaute und Sonderzeichen. -->
     <meta charset="UTF-8">
-
-    <!-- Passt die Seite an den Bildschirm an und erlaubt den Hintergrund bis zum Rand. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <!-- Lädt das Grunddesign und danach die zusätzlichen Darstellungsregeln. -->
+    <!-- Lädt das Design und die Anpassungen für mobile Geräte. -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="game-screen.css">
     <link rel="stylesheet" href="impressum.css">
     <link rel="stylesheet" href="mobile.css">
 
-    <!-- Zeigt das kleine Huhn als Symbol im Browser-Tab. -->
     <link rel="icon" type="image/png" href="img/3_enemies_chicken/chicken_small/1_walk/1_w.png">
 
     <title>El Pollo Loco</title>
 
-    <!-- Lädt zuerst die Basisklassen, die andere Klassen verwenden. -->
+    <!-- Die Basisklassen werden vor den davon abhängigen Klassen geladen. -->
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
-
-    <!-- Lädt die Klassen für Figuren und Gegenstände. -->
     <script src="models/collectible-object.class.js"></script>
     <script src="models/throwable-object.class.js"></script>
     <script src="models/character.class.js"></script>
     <script src="models/chicken.class.js"></script>
     <script src="models/cloud.class.js"></script>
-
-    <!-- Lädt die Lebensanzeige, das Zeichnen und den Spielablauf. -->
     <script src="models/status-bar.class.js"></script>
+
+    <!-- Verbindet Zeichnung, Kollisionen und Gegenstände mit der Spielwelt. -->
     <script src="models/world-renderer.class.js"></script>
+    <script src="models/world-collisions.class.js"></script>
+    <script src="models/world-items.class.js"></script>
     <script src="models/world.class.js"></script>
+
     <script src="models/background-object.class.js"></script>
     <script src="models/keyboard.class.js"></script>
     <script src="models/level.class.js"></script>
     <script src="models/endboss.class.js"></script>
-
-    <!-- Lädt das Level und die Steuerung. -->
     <script src="models/level1.js"></script>
     <script src="js/game.js"></script>
 
-    <!-- Diese Skripte starten, sobald die HTML-Elemente vorhanden sind. -->
+    <!-- Diese Dateien benötigen die fertig geladenen HTML-Elemente. -->
     <script defer src="js/game-audio.js"></script>
     <script defer src="js/game-screen.js"></script>
 </head>
@@ -51,22 +46,24 @@
 <body class="game-page">
     <h1>El Pollo Loco</h1>
 
-    <!-- Dieser Bereich enthält das Spiel und wechselt zusammen ins Vollbild. -->
     <section id="game-container">
+        <!-- Hinweis für Touch-Geräte im Hochformat. -->
+        <div id="rotate-hint" role="status">
+            <span aria-hidden="true">↻</span>
+            <p>Bitte drehe dein Gerät ins Querformat.</p>
+        </div>
 
-        <!-- Hält Spielfeld, Bildschirme und Buttons zusammen. -->
         <div id="game-stage">
-
-            <!-- JavaScript zeichnet das Spiel auf diese Fläche. -->
             <canvas id="canvas" width="720" height="480"></canvas>
 
-            <!-- Zeigt das Startbild oder nach der Runde das Ergebnisbild. -->
+            <!-- Startbild und Endbilder liegen über dem Spielfeld. -->
             <div id="game-screen">
                 <img id="game-screen-image" src="img/startscreen/startScreen.png" alt="El Pollo Loco">
 
-                <!-- Startet eine Runde oder öffnet die Anleitung. -->
                 <div class="game-screen-actions">
-                    <button id="game-screen-button" type="button">Spiel starten</button>
+                    <button id="game-screen-button" type="button">
+                        Spiel starten
+                    </button>
 
                     <button id="game-help-button" type="button" aria-haspopup="dialog">
                         Spielanleitung
@@ -74,45 +71,45 @@
                 </div>
             </div>
 
-            <!-- Verbindet die Bildschirmbuttons mit den Spielaktionen. -->
+            <!-- Links wird gelaufen, rechts gesprungen und geworfen. -->
             <div class="mobile-controls">
-
-                <!-- Die linke Gruppe steuert Pepes Laufrichtung. -->
                 <div>
                     <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
                     <button id="btnRight" type="button" aria-label="Nach rechts laufen">›</button>
                 </div>
 
-                <!-- Die rechte Gruppe steuert Springen und Werfen. -->
                 <div>
                     <button id="btnJump" type="button" aria-label="Springen">↑</button>
-
                     <button id="btnThrow" type="button" aria-label="Flasche werfen">
                         <img src="img/7_statusbars/3_icons/icon_salsa_bottle.png" alt="">
                     </button>
                 </div>
             </div>
 
-            <!-- Enthält die Symbole für Ton, Vollbild und Musik. -->
+            <!-- Oben rechts stehen nur Einstellungen und Vollbild. -->
             <div class="game-toolbar">
-                <button id="sound-toggle" type="button" title="Ton ausschalten" aria-label="Ton ausschalten">🔊</button>
-
-                <!-- JavaScript zeigt den Button bei unterstützter Vollbildfunktion. -->
-                <button id="fullscreen-button" type="button" title="Vollbild" aria-label="Vollbild" hidden>⛶</button>
-
-                <!-- Öffnet und schließt den Regler für die Hintergrundmusik. -->
                 <details id="music-settings" class="music-settings">
-                    <summary title="Musiklautstärke" aria-label="Musiklautstärke">♫</summary>
+                    <summary title="Einstellungen" aria-label="Einstellungen">⚙</summary>
 
                     <div class="music-volume-panel">
-                        <label for="music-volume">Musik 20 %</label>
+                        <h2>Einstellungen</h2>
+
+                        <button id="sound-toggle" type="button" title="Alle Töne ausschalten: Musik und Spielgeräusche"
+                            aria-label="Alle Töne ausschalten: Musik und Spielgeräusche">
+                            🔊 Ton an
+                        </button>
+                        <p>Schaltet Musik und Spielgeräusche zusammen.</p>
+
+                        <label for="music-volume">Hintergrundmusik 20 %</label>
                         <input id="music-volume" type="range" min="0" max="100" value="20">
+                        <p>Regelt nur die Musik. Bei 0 % ist sie aus.</p>
                     </div>
                 </details>
+
+                <button id="fullscreen-button" type="button" title="Vollbild" aria-label="Vollbild" hidden>⛶</button>
             </div>
         </div>
 
-        <!-- Erklärt die Tastaturbelegung unter dem Spiel. -->
         <p class="keyboard-help">
             <strong>Tastatur</strong>
             <span><kbd>←</kbd> <kbd>→</kbd> Laufen</span>
@@ -120,27 +117,23 @@
             <span><kbd>D</kbd> Flasche werfen</span>
         </p>
 
-        <!-- Führt zur separaten Projektseite. -->
         <footer class="impressum-footer">
             <a href="impressum.html">Projektinformation</a>
         </footer>
 
-        <!-- Öffnet die Spielanleitung als Fenster über der Seite. -->
+        <!-- Öffnet die Anleitung über dem Spiel. -->
         <dialog id="game-help" aria-labelledby="game-help-title">
             <h2 id="game-help-title">So spielst du</h2>
 
-            <!-- Beschreibt die Ziele und wichtigsten Regeln. -->
             <ul>
                 <li>
                     <strong>Sammeln.</strong> Berühre Münzen und Flaschen, um sie einzusammeln.
                     Im Level liegen 10 Münzen und 6 Flaschen.
                 </li>
-
                 <li>
                     <strong>Hühner besiegen.</strong> Spring von oben auf ein Huhn
                     oder triff es mit einer Flasche. Seitliche Berührungen kosten Leben.
                 </li>
-
                 <li>
                     <strong>Endboss besiegen.</strong> Heb dir fünf Flaschen für ihn auf.
                     Mit fünf Treffern gewinnst du.
@@ -153,7 +146,11 @@
                 Auf dem Handy nutzt du die Pfeiltasten und den Flaschenbutton.
             </p>
 
-            <!-- method="dialog" schließt das Fenster beim Absenden. -->
+            <p>
+                Über das Zahnrad öffnest du die Einstellungen.
+                Dort schaltest du alle Töne ein oder aus und regelst die Hintergrundmusik.
+            </p>
+
             <form method="dialog">
                 <button type="submit" autofocus>Schließen</button>
             </form>

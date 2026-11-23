@@ -1,8 +1,7 @@
 /**
- * Beschreibt eine Flasche, die Pepe geworfen hat.
+ * Beschreibt eine geworfene Flasche.
  */
 class ThrowableObject extends MovableObject {
-    // Alle Flaschen verwenden dasselbe vorgeladene Bild.
     static image = new Image();
 
     static {
@@ -13,9 +12,9 @@ class ThrowableObject extends MovableObject {
     width = 50;
 
     /**
-     * Setzt die Flasche neben Pepe und startet den Flug.
+     * Setzt die Startposition und startet den Flug.
      * @param {number} x - Startkante neben Pepe.
-     * @param {number} y - Starthöhe der Flasche.
+     * @param {number} y - Starthöhe.
      * @param {number} [direction=1] - 1 für rechts, -1 für links.
      */
     constructor(x, y, direction = 1) {
@@ -28,19 +27,19 @@ class ThrowableObject extends MovableObject {
     }
 
     /**
-     * Startet die Schwerkraft und die seitliche Bewegung der Flasche.
+     * Startet Schwerkraft und Bewegung in Wurfrichtung.
      */
     startThrow() {
         this.speedY = 30;
         this.gravityInterval = this.applyGravity();
 
         this.moveInterval = setInterval(() => {
-            this.x += 10 * this.direction;
+            if (!world?.paused) this.x += 10 * this.direction;
         }, 25);
     }
 
     /**
-     * Stoppt die Bewegung und Schwerkraft der Flasche.
+     * Stoppt beide Timer der Flasche.
      */
     stop() {
         clearInterval(this.gravityInterval);

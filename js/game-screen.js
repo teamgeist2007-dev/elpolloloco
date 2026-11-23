@@ -5,47 +5,26 @@ const gameHelp = document.getElementById('game-help');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
 
-const restartKey = 'el-pollo-loco-restart';
-let gameStarted = false;
-
-// Öffnet die Spielanleitung.
 document.getElementById('game-help-button').addEventListener('click', () => {
     gameHelp.showModal();
+    updateGamePause();
 });
 
-// Startet die erste Runde oder lädt für einen Neustart die Seite neu.
-gameScreenButton.addEventListener('click', () => {
-    if (gameStarted) {
-        sessionStorage.setItem(restartKey, '1');
-        window.location.reload();
-        return;
-    }
-
-    startGameFromScreen();
-});
-
-// Startet nach einem angeforderten Neustart direkt eine neue Runde.
-window.addEventListener('load', () => {
-    if (sessionStorage.getItem(restartKey) === '1') {
-        sessionStorage.removeItem(restartKey);
-        startGameFromScreen();
-    }
-}, { once: true });
+gameHelp.addEventListener('close', updateGamePause);
+gameScreenButton.addEventListener('click', startGameFromScreen);
 
 /**
- * Startet das Spiel einmal und blendet das Startbild aus.
+ * Startet auch nach Sieg oder Niederlage direkt eine neue Runde.
  */
 function startGameFromScreen() {
-    if (gameStarted) return;
-
-    gameStarted = true;
-    init();
     gameScreen.hidden = true;
+    init();
+    gameAudio.focusGame();
 }
 
 /**
- * Zeigt das Ergebnisbild und spielt den passenden Sound.
- * @param {boolean} won - true für You Win, false für Game Over.
+ * Zeigt das passende Endbild und spielt den zugehörigen Ton.
+ * @param {boolean} won - Ob der Spieler gewonnen hat.
  */
 function showGameResult(won) {
     gameScreenImage.src = won
@@ -57,10 +36,10 @@ function showGameResult(won) {
     gameScreen.hidden = false;
     gameScreenButton.focus();
 
-    gameAudio.play(won ? 'gameWin' : 'gameLose');
+    if (won) gameAudio.playWinSound();
+    else gameAudio.play('gameLose');
 }
 
-// Zeigt den Vollbildbutton, wenn der Browser die Funktion unterstützt.
 if (
     (document.fullscreenEnabled && gameContainer.requestFullscreen) ||
     (document.webkitFullscreenEnabled && gameContainer.webkitRequestFullscreen)
@@ -77,8 +56,8 @@ if (
 }
 
 /**
- * Schaltet zwischen normaler Ansicht und Vollbild um.
- * @returns {Promise<void>} Wird nach dem verarbeiteten Vollbildwechsel beendet.
+ * Wechselt zwischen normaler Ansicht und Vollbild.
+ * @returns {Promise<void>} Abschluss des Vollbildwechsels.
  */
 async function toggleFullscreen() {
     try {
@@ -103,12 +82,13 @@ async function toggleFullscreen() {
 }
 
 /**
- * Aktualisiert das Layout und das Symbol des Vollbildbuttons.
+ * Aktualisiert das Symbol und die Beschriftung des Vollbildbuttons.
  */
 function updateFullscreenButton() {
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-    const isFullscreen = fullscreenElement === gameContainer;
+    const fullscreenElement = document.fullscreenElement ||
+        document.webkitFullscreenElement;
 
+    const isFullscreen = fullscreenElement === gameContainer;
     gameContainer.classList.toggle('fullscreen', isFullscreen);
 
     const label = isFullscreen ? 'Vollbild beenden' : 'Vollbild';

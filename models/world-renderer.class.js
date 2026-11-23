@@ -1,27 +1,27 @@
 /**
- * Zeichnet das Spielfeld, die Figuren und die Anzeigen.
+ * Zeichnet die Spielwelt und die festen Anzeigen.
  */
 class WorldRenderer {
     /**
-     * Merkt sich den Zeichenbereich und lädt die Inventarsymbole.
-     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich des Spielfeldes.
+     * Merkt sich den Zeichenbereich und lädt die Anzeigebilder.
+     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich des Spielfelds.
      */
     constructor(ctx) {
         this.ctx = ctx;
-        this.coinIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_coin.png', 260);
-        this.bottleIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_salsa_bottle.png', 350);
+        this.coinIcon = this.createInventoryIcon('img/8_coin/coin_1.png', 260);
+        this.bottleIcon = this.createInventoryIcon('img/6_salsa_bottle/salsa_bottle.png', 350);
     }
 
     /**
-     * Zeichnet ein vollständiges Bild der Spielwelt.
+     * Zeichnet ein vollständiges Spielbild.
      * @param {World} world - Aktuelle Spielwelt.
      */
     draw(world) {
         const { canvas, camera_x, level } = world;
-        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Verschiebt die Zeichnung mit der Kamera.
+        this.ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.ctx.translate(camera_x, 0);
+
         this.addObjectsToMap(level.backgroundObjects);
         this.addToMap(world.character);
         this.addObjectsToMap(level.clouds);
@@ -30,23 +30,19 @@ class WorldRenderer {
         this.addObjectsToMap(level.bottles);
         this.addObjectsToMap(world.throwableObjects);
 
-        // Die Anzeigen werden ohne Kameraversatz gezeichnet.
         this.ctx.translate(-camera_x, 0);
         this.addToMap(world.statusBar);
         this.drawInventory(world.coins, world.bottles);
 
         const endboss = level.enemies.find((enemy) => enemy instanceof Endboss);
-
-        if (endboss?.isChasing) {
-            endboss.drawHealthBar(this.ctx);
-        }
+        if (endboss?.isChasing) endboss.drawHealthBar(this.ctx);
     }
 
     /**
-     * Erstellt ein Symbol für die Inventaranzeige.
-     * @param {string} path - Dateipfad des Symbols.
-     * @param {number} x - Waagerechte Position in der Anzeige.
-     * @returns {DrawableObject} Fertiges Symbol.
+     * Erstellt ein fest positioniertes Anzeigesymbol.
+     * @param {string} path - Bildpfad.
+     * @param {number} x - Horizontale Position.
+     * @returns {DrawableObject} Symbol mit Position und Größe.
      */
     createInventoryIcon(path, x) {
         const icon = new DrawableObject();
@@ -60,8 +56,8 @@ class WorldRenderer {
 
     /**
      * Zeichnet die Zähler für Münzen und Flaschen.
-     * @param {number} coins - Anzahl gesammelter Münzen.
-     * @param {number} bottles - Anzahl übriger Flaschen.
+     * @param {number} coins - Gesammelte Münzen.
+     * @param {number} bottles - Verfügbare Flaschen.
      */
     drawInventory(coins, bottles) {
         this.ctx.save();
@@ -76,11 +72,13 @@ class WorldRenderer {
     }
 
     /**
-     * Zeichnet ein Symbol mit Hintergrund und Anzahl.
-     * @param {DrawableObject} icon - Symbol des Gegenstands.
+     * Zeichnet Hintergrund, Bildausschnitt und Anzahl eines Gegenstands.
+     * @param {DrawableObject} icon - Bild des Gegenstands.
      * @param {number} count - Angezeigte Anzahl.
      */
     drawInventoryItem(icon, count) {
+        if (!icon.img.complete || !icon.img.naturalWidth) return;
+
         this.ctx.beginPath();
         this.ctx.roundRect(icon.x - 4, icon.y, 80, icon.height, 20);
         this.ctx.fillStyle = 'rgba(43, 26, 18, 0.85)';
@@ -89,14 +87,22 @@ class WorldRenderer {
         this.ctx.strokeStyle = '#e6b95c';
         this.ctx.stroke();
 
-        this.addToMap(icon);
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+
+        if (icon === this.coinIcon) {
+            this.ctx.drawImage(icon.img, 96, 97, 108, 107, icon.x + 7, 17, 26, 26);
+        } else {
+            this.ctx.drawImage(icon.img, 162, 62, 76, 286, icon.x + 15, 13, 9, 34);
+        }
+
         this.ctx.fillStyle = '#ffda78';
         this.ctx.fillText(count, icon.x + 55, icon.y + icon.height / 2);
     }
 
     /**
-     * Zeichnet jedes Objekt einer Liste.
-     * @param {DrawableObject[]} objects - Liste der zu zeichnenden Objekte.
+     * Zeichnet alle Objekte einer Liste.
+     * @param {DrawableObject[]} objects - Zu zeichnende Objekte.
      */
     addObjectsToMap(objects) {
         for (const object of objects) {

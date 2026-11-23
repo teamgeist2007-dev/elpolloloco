@@ -1,9 +1,9 @@
 /**
- * Beschreibt ein normales oder ein kleines Huhn.
+ * Erstellt ein normales oder ein kleines Huhn.
  */
 class Chicken extends MovableObject {
     /**
-     * Legt Bilder, Größe, Startposition und Geschwindigkeit des Huhns fest.
+     * Legt Bilder, Größe und Startposition fest.
      * @param {number} [x] - Startposition oder eine zufällige Position.
      * @param {boolean} [small=false] - Ob ein kleines Huhn erstellt wird.
      */
@@ -31,20 +31,22 @@ class Chicken extends MovableObject {
     }
 
     /**
-     * Bewegt das Huhn nach links und spielt seine Laufanimation.
+     * Bewegt und animiert das Huhn, solange das Spiel läuft.
      */
     animate() {
         this.moveInterval = setInterval(() => {
-            this.moveLeft();
+            if (!world?.paused && !world?.gameFinished) this.moveLeft();
         }, 1000 / 60);
 
         this.animationInterval = setInterval(() => {
-            this.playAnimation(this.IMAGES_WALKING);
+            if (!world?.paused && !world?.gameFinished) {
+                this.playAnimation(this.IMAGES_WALKING);
+            }
         }, 200);
     }
 
     /**
-     * Stoppt Bewegung und Animation, wenn das Huhn besiegt ist.
+     * Stoppt beide Timer, wenn das Huhn besiegt oder die Runde beendet ist.
      */
     stop() {
         clearInterval(this.moveInterval);
