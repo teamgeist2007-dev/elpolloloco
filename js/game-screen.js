@@ -1,22 +1,20 @@
-// Diese Elemente gehören zum Startbild, den Endbildern, der Anleitung und dem Vollbild.
 const gameScreen = document.getElementById('game-screen');
 const gameScreenImage = document.getElementById('game-screen-image');
 const gameScreenButton = document.getElementById('game-screen-button');
 const gameHelp = document.getElementById('game-help');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
-// Mit diesem Schlüssel merkt sich die Seite, dass nach einem Neuladen direkt eine neue Runde starten soll.
+
 const restartKey = 'el-pollo-loco-restart';
 let gameStarted = false;
 
-// Öffnet das Fenster mit der Spielanleitung.
+// Öffnet die Spielanleitung.
 document.getElementById('game-help-button').addEventListener('click', () => {
     gameHelp.showModal();
 });
 
-// Startet die erste Runde oder lädt nach dem Spielende eine neue Runde.
+// Startet die erste Runde oder lädt für einen Neustart die Seite neu.
 gameScreenButton.addEventListener('click', () => {
-    // Beim Neustart lädt die Seite neu, damit die alte Runde endet und alle Werte frisch beginnen.
     if (gameStarted) {
         sessionStorage.setItem(restartKey, '1');
         window.location.reload();
@@ -26,7 +24,7 @@ gameScreenButton.addEventListener('click', () => {
     startGameFromScreen();
 });
 
-// Startet nach dem Neuladen direkt, wenn vorher auf Neues Spiel starten geklickt wurde.
+// Startet nach einem angeforderten Neustart direkt eine neue Runde.
 window.addEventListener('load', () => {
     if (sessionStorage.getItem(restartKey) === '1') {
         sessionStorage.removeItem(restartKey);
@@ -34,7 +32,9 @@ window.addEventListener('load', () => {
     }
 }, { once: true });
 
-// Startet das Spiel einmal und blendet das Startbild aus.
+/**
+ * Startet das Spiel einmal und blendet das Startbild aus.
+ */
 function startGameFromScreen() {
     if (gameStarted) return;
 
@@ -43,7 +43,10 @@ function startGameFromScreen() {
     gameScreen.hidden = true;
 }
 
-// Zeigt Sieg oder Niederlage an und spielt den passenden Sound.
+/**
+ * Zeigt das Ergebnisbild und spielt den passenden Sound.
+ * @param {boolean} won - true für You Win, false für Game Over.
+ */
 function showGameResult(won) {
     gameScreenImage.src = won
         ? 'img/Win and lose/youWin.png'
@@ -57,8 +60,8 @@ function showGameResult(won) {
     gameAudio.play(won ? 'gameWin' : 'gameLose');
 }
 
+// Zeigt den Vollbildbutton, wenn der Browser die Funktion unterstützt.
 if (
-    // Der Vollbildbutton erscheint, wenn der Browser die Vollbildfunktion unterstützt.
     (document.fullscreenEnabled && gameContainer.requestFullscreen) ||
     (document.webkitFullscreenEnabled && gameContainer.webkitRequestFullscreen)
 ) {
@@ -69,12 +72,14 @@ if (
         if (event.code === 'Space') event.stopPropagation();
     });
 
-    // Aktualisiert den Button auch dann, wenn Vollbild mit Escape beendet wird.
     document.addEventListener('fullscreenchange', updateFullscreenButton);
     document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
 }
 
-// Schaltet zwischen normaler Ansicht und Vollbild um.
+/**
+ * Schaltet zwischen normaler Ansicht und Vollbild um.
+ * @returns {Promise<void>} Wird nach dem verarbeiteten Vollbildwechsel beendet.
+ */
 async function toggleFullscreen() {
     try {
         if (document.fullscreenElement) {
@@ -87,7 +92,6 @@ async function toggleFullscreen() {
             await gameContainer.webkitRequestFullscreen();
         }
 
-        // Gibt nach dem Umschalten die Tastatursteuerung wieder ans Spielfeld.
         if (world && !world.gameFinished) {
             world.canvas.tabIndex = -1;
             world.canvas.focus({ preventScroll: true });
@@ -98,7 +102,9 @@ async function toggleFullscreen() {
     }
 }
 
-// Passt das Layout und die Beschriftung des Vollbildbuttons an.
+/**
+ * Aktualisiert das Layout und das Symbol des Vollbildbuttons.
+ */
 function updateFullscreenButton() {
     const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     const isFullscreen = fullscreenElement === gameContainer;

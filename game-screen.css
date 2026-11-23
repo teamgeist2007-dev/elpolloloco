@@ -1,4 +1,4 @@
-/* Hält das Spielfeld und die Bilder für Start, Sieg und Niederlage an derselben Stelle. */
+/* Hält Spielfeld, Startbild und Endbilder an derselben Stelle. */
 #game-stage {
     position: relative;
     width: fit-content;
@@ -13,7 +13,7 @@
     background-color: #302016;
 }
 
-/* Zeigt das Bild vollständig und behält sein Seitenverhältnis bei. */
+/* Zeigt das Bild vollständig im passenden Seitenverhältnis. */
 #game-screen-image {
     display: block;
     width: 100%;
@@ -34,7 +34,7 @@
     padding-inline: 8px;
 }
 
-/* Gibt den Buttons auf den Bildern und in der Anleitung denselben Stil. */
+/* Gestaltet die Startbuttons und den Schließen-Button der Anleitung. */
 .game-screen-actions button,
 #game-help button {
     min-height: 44px;
@@ -47,14 +47,14 @@
     cursor: pointer;
 }
 
-/* Macht sichtbar, welcher Button mit der Tastatur ausgewählt wurde. */
+/* Markiert den mit der Tastatur ausgewählten Button. */
 .game-screen-actions button:focus-visible,
 #game-help button:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 3px;
 }
 
-/* Legt Größe, Text und Wüstenhintergrund des Anleitungsfensters fest. */
+/* Gestaltet das Fenster der Spielanleitung. */
 #game-help {
     box-sizing: border-box;
     width: min(calc(100% - 32px), 520px);
@@ -80,12 +80,12 @@
     text-align: center;
 }
 
-/* Fügt zwischen den Punkten der Anleitung etwas Abstand ein. */
+/* Fügt zwischen den Regeln etwas Abstand ein. */
 #game-help li + li {
     margin-top: 8px;
 }
 
-/* Hebt die Tasten in der Anleitung durch Fettdruck hervor. */
+/* Hebt die Tastennamen in der Anleitung hervor. */
 #game-help kbd {
     font: inherit;
     font-weight: 700;
@@ -96,7 +96,7 @@
     text-align: center;
 }
 
-/* Kleine Symbole für Ton, Vollbild und Musik oben rechts im Spielfeld. */
+/* Platziert Ton, Vollbild und Musik oben rechts im Spielfeld. */
 .game-toolbar {
     position: absolute;
     top: 8px;
@@ -107,6 +107,7 @@
     gap: 5px;
 }
 
+/* Gestaltet die kleinen Symbolbuttons. */
 .game-toolbar button,
 .game-toolbar summary {
     display: grid;
@@ -123,31 +124,34 @@
     cursor: pointer;
 }
 
+/* Hebt das Symbol beim Überfahren mit der Maus hervor. */
 .game-toolbar button:hover,
 .game-toolbar summary:hover {
     background: #674222;
 }
 
+/* Markiert ein mit der Tastatur ausgewähltes Symbol. */
 .game-toolbar button:focus-visible,
 .game-toolbar summary:focus-visible {
     outline: 2px solid white;
     outline-offset: 2px;
 }
 
-/* Auf großen Bildschirmen stehen Ton und Vollbild nebeneinander. */
+/* Stellt Ton und Vollbild bei genügend Platz nebeneinander. */
 @media (min-width: 1000px) and (min-height: 650px) {
     .game-toolbar {
         grid-template-columns: auto auto;
     }
 }
 
-/* Der Regler klappt links neben dem Musik-Symbol auf. */
+/* Verankert den Musikregler am Musik-Symbol. */
 .music-settings {
     position: relative;
     grid-column: -2 / -1;
     justify-self: end;
 }
 
+/* Entfernt den normalen Pfeil des aufklappbaren Menüs. */
 .music-settings summary {
     list-style: none;
 }
@@ -156,6 +160,7 @@
     display: none;
 }
 
+/* Öffnet das Musikmenü links neben dem Symbol. */
 .music-volume-panel {
     position: absolute;
     top: 0;
@@ -169,6 +174,7 @@
     font: 700 14px/1.4 Arial, sans-serif;
 }
 
+/* Gestaltet den Lautstärkeregler. */
 .music-volume-panel input {
     display: block;
     width: 100%;
@@ -177,12 +183,12 @@
     cursor: pointer;
 }
 
-/* Versteckt den Vollbildbutton, solange der Browser die Funktion nicht freigibt. */
+/* Versteckt den Vollbildbutton, bis JavaScript ihn freigibt. */
 #fullscreen-button[hidden] {
     display: none;
 }
 
-/* Ordnet den gesamten Spielbereich neu an, wenn Vollbild aktiv ist. */
+/* Ordnet den Spielbereich für die Vollbildansicht an. */
 #game-container.fullscreen {
     box-sizing: border-box;
     display: flex;
@@ -198,13 +204,13 @@
     background: #302016 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
 }
 
-/* Berechnet die Größe des Spielfelds aus dem Platz, der im Vollbild übrig ist. */
+/* Berechnet die Spielfeldgröße aus dem verfügbaren Platz im Vollbild. */
 #game-container.fullscreen #game-stage {
     width: min(100%, max(1px, calc((100svh - 96px) * 1.5)));
     flex-shrink: 0;
 }
 
-/* Hält die Tastaturleiste im Vollbild kompakt. */
+/* Begrenzt die Tastaturleiste im Vollbild auf eine gut lesbare Breite. */
 #game-container.fullscreen .keyboard-help {
     box-sizing: border-box;
     width: min(100%, 720px);

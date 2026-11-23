@@ -1,10 +1,12 @@
-// Das ist Pepe, die Figur, die du steuerst.
+/**
+ * Beschreibt Pepe, die vom Spieler gesteuerte Figur.
+ */
 class Character extends MovableObject {
-    // Größe, Starthöhe und Lauftempo von Pepe.
     height = 250;
     y = 80;
     speed = 10;
-    // Diese Zeit hilft dabei zu erkennen, wann Pepe lange genug stillsteht und einschläft.
+
+    // Zeitpunkt der letzten Bewegung oder eines Treffers.
     lastActiveAt = performance.now();
     isSleeping = false;
 
@@ -42,14 +44,14 @@ class Character extends MovableObject {
         'img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    // Bilder für die kurze Trefferanimation.
+    // Bilder für die Trefferanimation.
     IMAGES_HURT = [
         'img/2_character_pepe/4_hurt/H-41.png',
         'img/2_character_pepe/4_hurt/H-42.png',
         'img/2_character_pepe/4_hurt/H-43.png'
     ];
 
-    // Bilder für die Schlafanimation mit geschlossenen Augen.
+    // Bilder für Pepes Schlafanimation.
     IMAGES_SLEEPING = [
         'img/2_character_pepe/1_idle/long_idle/I-11.png',
         'img/2_character_pepe/1_idle/long_idle/I-12.png',
@@ -63,10 +65,11 @@ class Character extends MovableObject {
         'img/2_character_pepe/1_idle/long_idle/I-20.png'
     ];
 
-    // Hier merkt sich Pepe seine Spielwelt, damit er auf Steuerung und Kamera zugreifen kann.
     world;
 
-    // Lädt Pepes Bilder, startet die Schwerkraft und schaltet die Steuerung ein.
+    /**
+     * Lädt die Bilder und startet Schwerkraft, Bewegung und Animation.
+     */
     constructor() {
         super();
         this.loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
@@ -81,9 +84,14 @@ class Character extends MovableObject {
         this.animate();
     }
 
-    // Zieht Leben ab und weckt Pepe. Der Trefferschutz verhindert mehrere Treffer direkt hintereinander.
+    /**
+     * Zieht bei einem gültigen Treffer Leben ab und weckt Pepe.
+     * @param {number} [damage=5] - Schaden durch den Gegner.
+     * @returns {boolean} Ob der Treffer tatsächlich Leben abgezogen hat.
+     */
     hit(damage = 5) {
         const now = Date.now();
+
         // Hühner treffen alle 500 ms, der Endboss alle 1000 ms.
         const hitInterval = damage === 5 ? 500 : 1000;
 
@@ -96,54 +104,51 @@ class Character extends MovableObject {
         return true;
     }
 
-    // Steuert Pepes Bewegung und wählt regelmäßig das passende Bild aus.
+    /**
+     * Steuert Pepes Bewegung und wählt die passende Animation aus.
+     */
     animate() {
-        // Dieser Timer bewegt Pepe entsprechend den gedrückten Tasten.
+        // Dieser Timer verarbeitet die gedrückten Spieltasten.
         setInterval(() => {
             const { keyboard, level } = this.world;
 
-            // Pepe läuft bis zur rechten Grenze des Levels und schaut nach rechts.
             if (keyboard.RIGHT && this.x < level.level_end_x) {
                 this.moveRight();
                 this.otherDirection = false;
             }
 
-            // Pepe läuft nach links und dreht sich in Laufrichtung.
             if (keyboard.LEFT && this.x > 0) {
                 this.moveLeft();
                 this.otherDirection = true;
             }
 
-            // Mit der Leertaste kann Pepe springen, wenn er am Boden ist.
             if (keyboard.SPACE && !this.isAboveGround()) {
                 this.jump();
             }
 
-            // Beim Laufen oder Springen beginnt die Wartezeit fürs Einschlafen von vorne.
+            // Bewegung startet die Wartezeit fürs Einschlafen neu.
             if (keyboard.LEFT || keyboard.RIGHT || this.isAboveGround() || this.speedY > 0) {
                 this.lastActiveAt = performance.now();
                 this.isSleeping = false;
             }
 
-            // Die Kamera folgt Pepe und hält ihn links im sichtbaren Spielfeld.
+            // Die Kamera folgt Pepe.
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
 
-        // Dieser Timer entscheidet, ob Pepe steht, läuft, springt, getroffen wurde oder schläft.
+        // Dieser Timer wählt Pepes aktuelles Bild.
         setInterval(() => {
             const { keyboard } = this.world;
             this.isSleeping = false;
 
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
-            // Die Trefferpose wird für ungefähr eine Viertelsekunde angezeigt.
             } else if (Date.now() - this.lastHit < 250) {
                 this.playAnimation(this.IMAGES_HURT);
             } else if (this.isAboveGround() || this.speedY > 0) {
                 this.playAnimation(this.IMAGES_JUMPING);
             } else if (keyboard.RIGHT || keyboard.LEFT) {
                 this.playAnimation(this.IMAGES_WALKING);
-            // Nach fünf Sekunden Stillstand spielt die Schlafanimation.
             } else if (performance.now() - this.lastActiveAt >= 5000) {
                 this.playAnimation(this.IMAGES_SLEEPING);
                 this.isSleeping = true;

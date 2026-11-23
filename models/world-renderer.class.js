@@ -1,19 +1,26 @@
-// Zeichnet das Spielfeld und die Anzeigen. Die Spielregeln stehen in World.
+/**
+ * Zeichnet das Spielfeld, die Figuren und die Anzeigen.
+ */
 class WorldRenderer {
-    // Merkt sich den Zeichenbereich und lädt die Symbole für Münzen und Flaschen.
+    /**
+     * Merkt sich den Zeichenbereich und lädt die Inventarsymbole.
+     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich des Spielfeldes.
+     */
     constructor(ctx) {
         this.ctx = ctx;
         this.coinIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_coin.png', 260);
         this.bottleIcon = this.createInventoryIcon('img/7_statusbars/3_icons/icon_salsa_bottle.png', 350);
     }
 
-    // Zeichnet ein komplettes Bild des Spiels.
+    /**
+     * Zeichnet ein vollständiges Bild der Spielwelt.
+     * @param {World} world - Aktuelle Spielwelt.
+     */
     draw(world) {
         const { canvas, camera_x, level } = world;
-        // Löscht das vorherige Bild, bevor das Spiel neu gezeichnet wird.
         this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Verschiebt die Zeichnung mit der Kamera, damit die Welt an Pepe vorbeizieht.
+        // Verschiebt die Zeichnung mit der Kamera.
         this.ctx.translate(camera_x, 0);
         this.addObjectsToMap(level.backgroundObjects);
         this.addToMap(world.character);
@@ -22,20 +29,25 @@ class WorldRenderer {
         this.addObjectsToMap(level.coins);
         this.addObjectsToMap(level.bottles);
         this.addObjectsToMap(world.throwableObjects);
-        // Setzt den Kameraversatz zurück, bevor die festen Anzeigen gezeichnet werden.
-        this.ctx.translate(-camera_x, 0);
 
+        // Die Anzeigen werden ohne Kameraversatz gezeichnet.
+        this.ctx.translate(-camera_x, 0);
         this.addToMap(world.statusBar);
         this.drawInventory(world.coins, world.bottles);
 
-        // Die Bossanzeige erscheint, sobald der Endboss Pepe verfolgt.
         const endboss = level.enemies.find((enemy) => enemy instanceof Endboss);
+
         if (endboss?.isChasing) {
             endboss.drawHealthBar(this.ctx);
         }
     }
 
-    // Erstellt ein Symbol mit festgelegter Position und Größe für die Anzeige.
+    /**
+     * Erstellt ein Symbol für die Inventaranzeige.
+     * @param {string} path - Dateipfad des Symbols.
+     * @param {number} x - Waagerechte Position in der Anzeige.
+     * @returns {DrawableObject} Fertiges Symbol.
+     */
     createInventoryIcon(path, x) {
         const icon = new DrawableObject();
         icon.loadImage(path);
@@ -46,7 +58,11 @@ class WorldRenderer {
         return icon;
     }
 
-    // Zeichnet die beiden Zähler für Münzen und Flaschen.
+    /**
+     * Zeichnet die Zähler für Münzen und Flaschen.
+     * @param {number} coins - Anzahl gesammelter Münzen.
+     * @param {number} bottles - Anzahl übriger Flaschen.
+     */
     drawInventory(coins, bottles) {
         this.ctx.save();
         this.ctx.font = 'bold 20px Arial';
@@ -59,7 +75,11 @@ class WorldRenderer {
         this.ctx.restore();
     }
 
-    // Zeichnet ein Symbol, den dunklen Hintergrund und die passende Anzahl dazu.
+    /**
+     * Zeichnet ein Symbol mit Hintergrund und Anzahl.
+     * @param {DrawableObject} icon - Symbol des Gegenstands.
+     * @param {number} count - Angezeigte Anzahl.
+     */
     drawInventoryItem(icon, count) {
         this.ctx.beginPath();
         this.ctx.roundRect(icon.x - 4, icon.y, 80, icon.height, 20);
@@ -74,14 +94,20 @@ class WorldRenderer {
         this.ctx.fillText(count, icon.x + 55, icon.y + icon.height / 2);
     }
 
-    // Zeichnet jedes Objekt in einer Liste, zum Beispiel alle Wolken.
+    /**
+     * Zeichnet jedes Objekt einer Liste.
+     * @param {DrawableObject[]} objects - Liste der zu zeichnenden Objekte.
+     */
     addObjectsToMap(objects) {
         for (const object of objects) {
             this.addToMap(object);
         }
     }
 
-    // Zeichnet ein geladenes Objekt und spiegelt es bei Bedarf.
+    /**
+     * Zeichnet ein geladenes Objekt und spiegelt es bei Bedarf.
+     * @param {DrawableObject} object - Zu zeichnendes Objekt.
+     */
     addToMap(object) {
         if (!object.img.complete || object.img.naturalWidth === 0) return;
 
@@ -90,7 +116,6 @@ class WorldRenderer {
             return;
         }
 
-        // Merkt sich die Zeichenrichtung und stellt sie nach dem Spiegeln wieder her.
         this.ctx.save();
         this.ctx.translate(object.width, 0);
         this.ctx.scale(-1, 1);

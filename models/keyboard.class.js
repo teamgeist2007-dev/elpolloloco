@@ -1,22 +1,31 @@
-// Speichert, welche Spieltasten gerade gedrückt werden.
+/**
+ * Speichert die gedrückten Spieltasten.
+ */
 class Keyboard {
-    // Diese Werte sind true, solange die zugehörige Taste oder der Touch-Button gedrückt ist.
     LEFT = false;
     RIGHT = false;
     UP = false;
     DOWN = false;
     SPACE = false;
-    // Merkt sich, ob die Wurftaste gerade gehalten wird.
+
+    // Merkt sich das Gedrückthalten der Wurftaste.
     throwHeld = false;
-    // Merkt sich einen neuen Wurf, auch wenn D sofort wieder losgelassen wird.
+
+    // Speichert auch einen sehr kurzen Tastendruck.
     throwPressed = false;
 
-    // Gibt zurück, ob die Wurftaste gerade gedrückt ist.
+    /**
+     * Gibt den aktuellen Zustand der Wurftaste zurück.
+     * @returns {boolean} Ob D gerade gehalten wird.
+     */
     get D() {
         return this.throwHeld;
     }
 
-    // Speichert den Tastenzustand und merkt sich den Beginn eines neuen Tastendrucks.
+    /**
+     * Speichert den Tastenzustand und erkennt einen neuen Tastendruck.
+     * @param {boolean} pressed - Ob die Wurftaste gedrückt ist.
+     */
     set D(pressed) {
         if (pressed && !this.throwHeld) {
             this.throwPressed = true;
@@ -25,7 +34,10 @@ class Keyboard {
         this.throwHeld = pressed;
     }
 
-    // Liest den gemerkten Tastendruck einmal aus und löscht ihn danach.
+    /**
+     * Liest einen gemerkten Wurf aus und löscht ihn danach.
+     * @returns {boolean} Ob ein neuer Tastendruck zum Werfen vorliegt.
+     */
     takeThrow() {
         const pressed = this.throwPressed;
         this.throwPressed = false;

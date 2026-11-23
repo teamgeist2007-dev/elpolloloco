@@ -5,7 +5,7 @@
     font-display: swap;
 }
 
-/* Zentriert das Spiel auf der Seite und setzt das Wüstenbild als Hintergrund. */
+/* Zentriert das Spiel auf der Seite. */
 body {
     box-sizing: border-box;
     display: flex;
@@ -19,7 +19,7 @@ body {
     font-family: 'Zabars', Arial, sans-serif;
 }
 
-/* Bestimmt Größe, Buchstabenabstand und Ausrichtung des Titels. */
+/* Bestimmt die Größe und den Buchstabenabstand des Titels. */
 h1 {
     margin: 0 0 12px;
     font-size: clamp(32px, 8vw, 64px);
@@ -28,13 +28,13 @@ h1 {
     text-align: center;
 }
 
-/* Begrenzt die Spielbreite, damit unter dem Bild Platz für die Steuerung bleibt. */
+/* Begrenzt das Spiel passend zur verfügbaren Bildschirmhöhe. */
 #game-container {
     width: 720px;
     max-width: min(100%, max(1px, calc((100dvh - 220px) * 1.5)));
 }
 
-/* Stellt das Spielfeld mit seiner ursprünglichen Form dar. */
+/* Skaliert das Spielfeld passend zur Breite seines Bereichs. */
 canvas {
     display: block;
     width: 100%;
@@ -42,7 +42,7 @@ canvas {
     background: black;
 }
 
-/* Platziert die Touch-Buttons in den unteren Ecken des Spielfelds. */
+/* Platziert die Touch-Buttons unten links und rechts. */
 .mobile-controls {
     position: absolute;
     right: 8px;
@@ -55,14 +55,14 @@ canvas {
     user-select: none;
 }
 
-/* Zeigt die Touch-Buttons während der Runde auf Handys und kleinen Displays. */
+/* Zeigt die Buttons während der Runde auf Touch-Geräten und kleinen Displays. */
 @media (hover: none) and (pointer: coarse), (max-width: 760px) {
     #game-screen[hidden] ~ .mobile-controls {
         display: flex;
     }
 }
 
-/* Zeichnet den dunklen Hintergrund hinter einer Gruppe von Touch-Buttons. */
+/* Stellt die beiden Buttons jeder Gruppe nebeneinander. */
 .mobile-controls > div {
     display: flex;
     gap: 6px;
@@ -71,7 +71,7 @@ canvas {
     background: rgba(43, 26, 18, 0.85);
 }
 
-/* Gestaltet die runden Buttons für Laufen, Springen und Werfen. */
+/* Gestaltet die runden Buttons und macht sie antippbar. */
 .mobile-controls button {
     display: grid;
     place-items: center;
@@ -87,13 +87,13 @@ canvas {
     pointer-events: auto;
 }
 
-/* Zeigt die Hand beim Überfahren eines Buttons oder Links. */
+/* Zeigt bei Buttons und Links den Handzeiger. */
 .game-page button,
 .game-page a {
     cursor: pointer;
 }
 
-/* Hebt den Touch-Button beim Überfahren oder Drücken hervor. */
+/* Hebt einen Button beim Überfahren oder Drücken hervor. */
 .mobile-controls button:hover,
 .mobile-controls button:active {
     background: #ffda78;
@@ -104,7 +104,7 @@ canvas {
     outline: none;
 }
 
-/* Markiert den Button, der gerade mit der Tastatur ausgewählt ist. */
+/* Markiert den mit der Tastatur ausgewählten Button. */
 .mobile-controls button:focus-visible {
     outline: 2px solid #ffda78;
     outline-offset: 2px;
@@ -118,14 +118,14 @@ canvas {
     pointer-events: none;
 }
 
-/* Auf schmalen Bildschirmen nutzt das Spiel die verfügbare Breite. */
+/* Nutzt auf schmalen Bildschirmen die verfügbare Breite. */
 @media only screen and (max-width: 760px) {
     #game-container {
         width: 100%;
     }
 }
 
-/* Bei wenig Höhe werden Titel und Spielbereich kleiner. */
+/* Verkleinert Titel und Spielbereich bei wenig Bildschirmhöhe. */
 @media only screen and (max-height: 480px) {
     h1 {
         font-size: 32px;
@@ -136,7 +136,7 @@ canvas {
     }
 }
 
-/* Gestaltet die Leiste mit der Tastaturbelegung unter dem Spiel. */
+/* Gestaltet die Leiste mit der Tastaturbelegung. */
 .keyboard-help {
     display: flex;
     flex-wrap: wrap;
@@ -161,7 +161,7 @@ canvas {
     font: inherit;
 }
 
-/* Auf sehr kleinen Spielflächen brauchen die Button-Gruppen weniger Platz. */
+/* Verringert die Abstände in den Button-Gruppen bei wenig Platz. */
 @media (max-width: 360px), (max-height: 300px) {
     .mobile-controls > div {
         gap: 4px;

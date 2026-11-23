@@ -1,10 +1,26 @@
-/* Der Hintergrund füllt die ganze Seite einschließlich der äußeren Ränder. */
+/* Bereitet eine gemeinsame Hintergrundfläche für die ganze Seite vor. */
 html {
     min-height: 100%;
-    background: #bc6c32 url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    isolation: isolate;
 }
 
-/* Zentriert das Impressum und passt sich längeren Inhalten an. */
+/* Legt das Wüstenbild fest über die gesamte Bildschirmfläche. */
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+    pointer-events: none;
+}
+
+/* Macht den gemeinsamen Hintergrund hinter beiden Seiten sichtbar. */
+body.game-page,
+body.impressum-page {
+    background: none;
+}
+
+/* Zentriert die Projektseite und berücksichtigt die Bildschirmränder. */
 .impressum-page {
     box-sizing: border-box;
     display: grid;
@@ -22,7 +38,7 @@ html {
     -webkit-text-size-adjust: 100%;
 }
 
-/* Helle Karte für gut lesbare Kontaktdaten. */
+/* Gestaltet die helle Karte für die Projektinformationen. */
 .impressum-card {
     box-sizing: border-box;
     width: min(100%, 480px);
@@ -34,17 +50,19 @@ html {
     overflow-wrap: anywhere;
 }
 
+/* Legt Größe und Abstand der Überschrift fest. */
 .impressum-card h1 {
     margin: 0 0 20px;
     font-size: clamp(32px, 6vw, 48px);
     line-height: 1.1;
 }
 
+/* Zeigt eine eventuell verwendete Adresse in normaler Schrift. */
 .impressum-card address {
     font-style: normal;
 }
 
-/* Der Impressum-Link unter dem Spiel bleibt klein. */
+/* Gestaltet den kleinen Projektlink unter dem Spiel. */
 .impressum-footer {
     margin-top: 4px;
     text-align: center;
@@ -55,7 +73,7 @@ html {
     color: #302016;
 }
 
-/* Zurück-Link auf der Impressumsseite. */
+/* Gestaltet den Zurück-Link auf der Projektseite. */
 .impressum-link {
     display: inline-block;
     padding: 8px 14px;

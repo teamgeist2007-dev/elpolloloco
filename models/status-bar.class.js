@@ -1,6 +1,7 @@
-// Zeigt Pepes verbleibende Lebenspunkte an.
+/**
+ * Zeigt Pepes verbleibende Lebenspunkte an.
+ */
 class StatusBar extends DrawableObject {
-    // Bilder der Anzeige von leer bis voll.
     IMAGES = [
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/blue/20.png',
@@ -12,7 +13,9 @@ class StatusBar extends DrawableObject {
 
     percentage = 100;
 
-    // Lädt die Bilder und legt Position, Größe und Startwert der Anzeige fest.
+    /**
+     * Lädt die Bilder und legt Position und Größe der Anzeige fest.
+     */
     constructor() {
         super();
         this.loadImages(this.IMAGES);
@@ -23,19 +26,28 @@ class StatusBar extends DrawableObject {
         this.setPercentage(100);
     }
 
-    // Speichert den neuen Lebenswert und wählt das Bild für die Anzeige aus.
+    /**
+     * Aktualisiert den Lebenswert und das Bild der Anzeige.
+     * @param {number} percentage - Verbleibendes Leben zwischen 0 und 100.
+     */
     setPercentage(percentage) {
         this.percentage = percentage;
         const path = this.IMAGES[this.resolveImageIndex()];
         this.img = this.imageCache[path];
     }
 
-    // Ordnet Pepes Lebenswert einer der sechs Balkenstufen zu.
+    /**
+     * Berechnet die passende Bildposition für den Lebenswert.
+     * @returns {number} Position des Bildes im Array.
+     */
     resolveImageIndex() {
         return Math.floor(this.percentage / 20);
     }
 
-    // Zeichnet den Balken und den genauen Wert, damit auch kleine Treffer sichtbar sind.
+    /**
+     * Zeichnet den Balken und den genauen Prozentwert.
+     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich der Anzeige.
+     */
     draw(ctx) {
         super.draw(ctx);
 

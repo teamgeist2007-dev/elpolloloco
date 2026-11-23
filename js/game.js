@@ -1,9 +1,8 @@
-// Hier werden das Spielfeld, die laufende Runde und die Steuerung gespeichert.
 let canvas;
 let world;
 let keyboard = new Keyboard();
 
-// Verbindet die echten Tastencodes mit den Namen, die das Spiel intern benutzt.
+// Verbindet die Tastencodes mit den Namen in der Steuerung.
 const gameKeys = {
     ArrowLeft: 'LEFT',
     ArrowRight: 'RIGHT',
@@ -13,7 +12,9 @@ const gameKeys = {
     KeyD: 'D'
 };
 
-// Baut beim Klick auf Spiel starten eine neue Runde auf.
+/**
+ * Baut das Level auf und startet eine neue Spielrunde.
+ */
 function init() {
     canvas = document.getElementById('canvas');
     initLevel();
@@ -21,7 +22,7 @@ function init() {
     bindMobileControls();
 }
 
-// Merkt sich, welche Spieltaste gedrückt wurde.
+// Speichert gedrückte Spieltasten.
 window.addEventListener('keydown', (event) => {
     const key = gameKeys[event.code];
     if (!key || !world || world.gameFinished) return;
@@ -30,13 +31,15 @@ window.addEventListener('keydown', (event) => {
     keyboard[key] = true;
 });
 
-// Setzt die Taste nach dem Loslassen zurück.
+// Setzt losgelassene Spieltasten zurück.
 window.addEventListener('keyup', (event) => {
     const key = gameKeys[event.code];
     if (key) keyboard[key] = false;
 });
 
-// Verbindet die vier Touch-Buttons mit Laufen, Springen und Werfen.
+/**
+ * Verbindet die vier Touch-Buttons mit den Spielaktionen.
+ */
 function bindMobileControls() {
     bindMobileButton('btnLeft', 'LEFT');
     bindMobileButton('btnRight', 'RIGHT');
@@ -44,7 +47,11 @@ function bindMobileControls() {
     bindMobileButton('btnThrow', 'D');
 }
 
-// Richtet die Reaktion auf Drücken und Loslassen für einen einzelnen Button ein.
+/**
+ * Verbindet einen Touch-Button mit einer Spieltaste.
+ * @param {string} id - ID des Buttons in der HTML-Datei.
+ * @param {string} key - Name der zugehörigen Spieltaste.
+ */
 function bindMobileButton(id, key) {
     const button = document.getElementById(id);
 
@@ -52,12 +59,13 @@ function bindMobileButton(id, key) {
         if (event.button !== 0 || world.gameFinished) return;
 
         event.preventDefault();
-        // Der Button merkt das Loslassen auch dann, wenn der Finger über seinen Rand rutscht.
         button.setPointerCapture(event.pointerId);
         keyboard[key] = true;
     });
 
-    // Stoppt die Aktion, wenn der Button losgelassen oder die Berührung abgebrochen wird.
+    /**
+     * Beendet die Aktion beim Loslassen oder Abbrechen der Berührung.
+     */
     function releaseButton() {
         keyboard[key] = false;
     }

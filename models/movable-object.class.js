@@ -1,22 +1,28 @@
-// Basis für bewegliche Objekte wie Pepe, Hühner und geworfene Flaschen.
+/**
+ * Basis für bewegliche Objekte wie Pepe, Hühner und Flaschen.
+ */
 class MovableObject extends DrawableObject {
-    // Wie weit sich das Objekt bei einer Bewegung nach links oder rechts verschiebt.
+    // Geschwindigkeit nach links oder rechts.
     speed = 0.15;
-    // Wenn der Wert true ist, wird das Bild beim Zeichnen gespiegelt.
+
+    // Bei true wird die Figur gespiegelt.
     otherDirection = false;
-    // Vertikale Geschwindigkeit. Ein positiver Wert bewegt das Objekt nach oben.
+
+    // Positive Werte bewegen das Objekt nach oben.
     speedY = 0;
-    // Um diesen Wert ändert sich die vertikale Geschwindigkeit durch die Schwerkraft.
+
+    // Veränderung der vertikalen Geschwindigkeit durch die Schwerkraft.
     acceleration = 2.5;
-    // Lebenspunkte des Objekts.
+
     energy = 100;
-    // Zeitpunkt des letzten Treffers, in Millisekunden.
     lastHit = 0;
 
-    // Lässt das Objekt regelmäßig steigen oder fallen und gibt den Timer zurück.
+    /**
+     * Lässt das Objekt durch die Schwerkraft steigen oder fallen.
+     * @returns {number} Nummer des Timers, damit er gestoppt werden kann.
+     */
     applyGravity() {
         return setInterval(() => {
-            // Die Schwerkraft wirkt in der Luft und während des Starts eines Sprungs.
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
@@ -24,7 +30,10 @@ class MovableObject extends DrawableObject {
         }, 1000 / 25);
     }
 
-    // Prüft, ob das Objekt über dem Boden ist. Geworfene Flaschen fallen weiter, bis die Spielwelt sie entfernt.
+    /**
+     * Prüft, ob das Objekt in der Luft ist.
+     * @returns {boolean} Ob die Schwerkraft weiter wirken soll.
+     */
     isAboveGround() {
         if (this instanceof ThrowableObject) {
             return true;
@@ -33,7 +42,10 @@ class MovableObject extends DrawableObject {
         return this.y < 180;
     }
 
-    // Zieht Schaden von den Lebenspunkten ab und merkt sich den Trefferzeitpunkt.
+    /**
+     * Zieht Lebenspunkte ab und merkt sich den Trefferzeitpunkt.
+     * @param {number} [damage=5] - Abzuziehende Lebenspunkte.
+     */
     hit(damage = 5) {
         this.energy -= damage;
 
@@ -44,17 +56,26 @@ class MovableObject extends DrawableObject {
         }
     }
 
-    // Prüft, ob der letzte Treffer weniger als eine Sekunde her ist.
+    /**
+     * Prüft die Zeit seit dem letzten Treffer.
+     * @returns {boolean} Ob der letzte Treffer weniger als eine Sekunde her ist.
+     */
     isHurt() {
         return Date.now() - this.lastHit < 1000;
     }
 
-    // Prüft, ob keine Lebenspunkte mehr übrig sind.
+    /**
+     * Prüft die verbleibenden Lebenspunkte.
+     * @returns {boolean} Ob die Lebenspunkte auf null stehen.
+     */
     isDead() {
         return this.energy == 0;
     }
 
-    // Zeigt das nächste Bild der Animation. Nach dem letzten Bild geht es wieder beim ersten los.
+    /**
+     * Zeigt das nächste Bild der ausgewählten Animation.
+     * @param {string[]} images - Dateipfade der Animationsbilder.
+     */
     playAnimation(images) {
         const index = this.currentImage % images.length;
         const path = images[index];
@@ -62,17 +83,23 @@ class MovableObject extends DrawableObject {
         this.currentImage++;
     }
 
-    // Bewegt das Objekt nach rechts.
+    /**
+     * Bewegt das Objekt nach rechts.
+     */
     moveRight() {
         this.x += this.speed;
     }
 
-    // Bewegt das Objekt nach links.
+    /**
+     * Bewegt das Objekt nach links.
+     */
     moveLeft() {
         this.x -= this.speed;
     }
 
-    // Gibt dem Objekt eine Geschwindigkeit nach oben und startet so den Sprung.
+    /**
+     * Startet einen Sprung mit einer Geschwindigkeit nach oben.
+     */
     jump() {
         this.speedY = 30;
     }

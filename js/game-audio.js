@@ -1,13 +1,18 @@
-// Verwaltet die Spielgeräusche, Hintergrundmusik und Tonsteuerung.
+/**
+ * Verwaltet Spielgeräusche, Hintergrundmusik und Tonsteuerung.
+ */
 class GameAudio {
-    // Lädt die Audiodateien und richtet die Buttons und den Regler ein.
+    /**
+     * Lädt die Audiodateien und verbindet Buttons und Musikregler.
+     * @param {HTMLButtonElement} button - Button zum Umschalten aller Töne.
+     * @param {HTMLDetailsElement} musicSettings - Aufklappbares Musikmenü.
+     */
     constructor(button, musicSettings) {
         this.button = button;
         this.musicInput = musicSettings.querySelector('input');
         this.musicLabel = musicSettings.querySelector('label');
         this.roundPlaying = false;
 
-        // Ordnet jedem Geräusch die passende Datei im Soundordner zu.
         const paths = {
             characterDamage: 'character/characterDamage.mp3',
             characterDead: 'character/characterDead.wav',
@@ -26,23 +31,20 @@ class GameAudio {
             gameLose: 'win and lose sound/loseSound.mp3'
         };
 
-        // Speichert die Audioobjekte, damit sie beim Spielen wiederverwendet werden.
         this.sounds = {};
 
         for (const name in paths) {
             this.sounds[name] = new Audio('audio/sounds/' + paths[name]);
         }
 
-        // Diese drei Dateien können in einer Schleife laufen.
+        // Diese Dateien werden bei Bedarf wiederholt.
         this.sounds.characterRun.loop = true;
         this.sounds.characterSnoring.loop = true;
         this.sounds.backgroundMusic.loop = true;
 
-        // Liest die gespeicherte Toneinstellung ein.
         this.muted = localStorage.getItem('el-pollo-loco-muted') === 'true';
         this.updateButton();
 
-        // Die Hintergrundmusik startet leise und merkt sich den gewählten Wert.
         this.musicInput.value = localStorage.getItem('el-pollo-loco-music-volume') ?? '20';
         this.updateMusic();
 
@@ -51,7 +53,7 @@ class GameAudio {
             this.updateMusic();
         });
 
-        // Pfeiltasten sollen im Musikmenü den Regler bedienen.
+        // Die Pfeiltasten bedienen im Musikmenü den Regler.
         musicSettings.addEventListener('keydown', (event) => {
             event.stopPropagation();
 
@@ -65,35 +67,38 @@ class GameAudio {
             if (!musicSettings.open) this.focusGame();
         });
 
-        // Schaltet den Ton um und gibt den Tastaturfokus an das Spielfeld zurück.
         button.addEventListener('click', () => {
             this.toggle();
             this.focusGame();
         });
 
-        // Wenn der Button fokussiert ist, bedient die Leertaste den Button.
         button.addEventListener('keydown', (event) => {
             if (event.code === 'Space') event.stopPropagation();
         });
 
-        // Eine neue Eingabe kann die Audiowiedergabe erlauben.
+        // Nach einer Eingabe kann der Browser die Tonwiedergabe erlauben.
         window.addEventListener('keydown', () => this.allowPlayback());
         window.addEventListener('pointerup', () => this.allowPlayback());
     }
 
-    // Setzt die Tonzustände zurück und startet die Musik für die Runde.
+    /**
+     * Bereitet den Ton für eine neue Runde vor und startet die Musik.
+     * @param {World} world - Neu gestartete Spielwelt.
+     */
     startRound(world) {
         this.lastX = world.character.x;
         this.lastGroundStep = -Infinity;
         this.wasRising = false;
         this.bossSoundPlayed = false;
         this.roundPlaying = true;
-
         this.play('gameStart');
         this.updateMusic();
     }
 
-    // Prüft pro Spielbild, ob Pepe läuft, springt oder schnarcht und ob der Boss auftaucht.
+    /**
+     * Prüft Bewegung, Schlaf und Verfolgung für die passenden Geräusche.
+     * @param {World} world - Laufende Spielwelt.
+     */
     update(world) {
         const character = world.character;
         const now = performance.now();
@@ -101,11 +106,9 @@ class GameAudio {
         const airborne = rising || character.isAboveGround();
         const moved = character.x !== this.lastX;
 
-        // Spielt den Sprungsound einmal zu Beginn eines Sprungs.
         if (rising && !this.wasRising) this.play('characterJump');
         if (moved && !airborne) this.lastGroundStep = now;
 
-        // Lässt das Laufgeräusch zwischen zwei Bewegungsschritten weiterlaufen.
         const walking = (world.keyboard.LEFT || world.keyboard.RIGHT) &&
             !airborne && now - this.lastGroundStep < 80;
 
@@ -114,7 +117,6 @@ class GameAudio {
 
         const boss = world.level.enemies.find((enemy) => enemy instanceof Endboss);
 
-        // Spielt einmal pro Runde das Geräusch, wenn die Verfolgung beginnt.
         if (boss?.isChasing && !this.bossSoundPlayed) {
             this.bossSoundPlayed = true;
             this.play('endbossApproach');
@@ -124,7 +126,10 @@ class GameAudio {
         this.lastX = character.x;
     }
 
-    // Spielt einen Ton von vorne ab, solange der Ton eingeschaltet ist.
+    /**
+     * Spielt ein Geräusch von vorne ab.
+     * @param {string} name - Name des Geräuschs in der Soundliste.
+     */
     play(name) {
         if (this.muted || this.waitingForInput) return;
 
@@ -139,7 +144,11 @@ class GameAudio {
         });
     }
 
-    // Startet ein wiederholtes Geräusch oder stoppt es, sobald die Aktion vorbei ist.
+    /**
+     * Startet oder stoppt ein wiederholtes Geräusch.
+     * @param {string} name - Name des Geräuschs.
+     * @param {boolean} active - Ob das Geräusch laufen soll.
+     */
     setLoop(name, active) {
         const sound = this.sounds[name];
 
@@ -151,7 +160,9 @@ class GameAudio {
         }
     }
 
-    // Schaltet die Musik lauter oder leiser. Bei null pausiert sie.
+    /**
+     * Übernimmt die Musiklautstärke vom Regler und pausiert bei null.
+     */
     updateMusic() {
         const percent = Number(this.musicInput.value);
         const shouldPlay = this.roundPlaying && !this.muted && percent > 0;
@@ -169,7 +180,9 @@ class GameAudio {
         this.setLoop('backgroundMusic', shouldPlay);
     }
 
-    // Regelt die Lautstärke der Musik auch in mobilen Browsern über Web Audio.
+    /**
+     * Bereitet die Lautstärkeregelung über Web Audio vor.
+     */
     prepareMusicVolume() {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext || this.musicContextFailed) return;
@@ -197,7 +210,9 @@ class GameAudio {
         }
     }
 
-    // Gibt den Ton nach einer Eingabe wieder frei und holt bei Bedarf den Startsound nach.
+    /**
+     * Holt nach einer Eingabe gegebenenfalls die blockierte Tonwiedergabe nach.
+     */
     allowPlayback() {
         this.waitingForInput = false;
 
@@ -209,7 +224,9 @@ class GameAudio {
         this.updateMusic();
     }
 
-    // Stoppt Musik, Laufgeräusch und Schnarchen, sobald die Runde endet.
+    /**
+     * Stoppt Musik, Laufgeräusch und Schnarchen nach dem Spielende.
+     */
     endRound() {
         this.roundPlaying = false;
         this.startPending = false;
@@ -218,7 +235,9 @@ class GameAudio {
         this.setLoop('characterSnoring', false);
     }
 
-    // Schaltet den gesamten Ton um und speichert die Einstellung.
+    /**
+     * Schaltet den gesamten Ton um und speichert die Einstellung.
+     */
     toggle() {
         this.muted = !this.muted;
         localStorage.setItem('el-pollo-loco-muted', String(this.muted));
@@ -237,7 +256,9 @@ class GameAudio {
         }
     }
 
-    // Nach dem Schließen des Musikmenüs steuert die Tastatur wieder Pepe.
+    /**
+     * Gibt den Tastaturfokus an das laufende Spiel zurück.
+     */
     focusGame() {
         if (world && !world.gameFinished) {
             world.canvas.tabIndex = -1;
@@ -245,7 +266,9 @@ class GameAudio {
         }
     }
 
-    // Zeigt an, welche Aktion mit dem nächsten Klick ausgeführt wird.
+    /**
+     * Aktualisiert Symbol und Beschriftung des Tonbuttons.
+     */
     updateButton() {
         const label = this.muted ? 'Ton einschalten' : 'Ton ausschalten';
         this.button.textContent = this.muted ? '🔇' : '🔊';
@@ -254,7 +277,6 @@ class GameAudio {
     }
 }
 
-// Erstellt die Tonsteuerung für dieses Spiel.
 const gameAudio = new GameAudio(
     document.getElementById('sound-toggle'),
     document.getElementById('music-settings')
