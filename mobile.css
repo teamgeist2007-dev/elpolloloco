@@ -1,9 +1,15 @@
-/* Auf großen Bildschirmen mit Maus bleiben die Touch-Buttons ausgeblendet. */
+/* Füllt die äußeren Seitenflächen mit dem Wüstenhintergrund. */
+html {
+    min-height: 100%;
+    background: #e49a4b url('img/hintergrund/wueste.jpg') center / cover no-repeat;
+}
+
+/* Versteckt die Touch-Buttons auf großen Bildschirmen mit Maus. */
 .game-page #game-screen[hidden] ~ .mobile-controls {
     display: none;
 }
 
-/* Dieser Hinweis erscheint nur auf Touch-Geräten im Hochformat. */
+/* Hinweis zum Drehen des Geräts. */
 #rotate-hint {
     display: none;
     position: fixed;
@@ -29,7 +35,7 @@
     background: #fff3dd;
 }
 
-/* Handys, Tablets und kleine Bildschirme bekommen Touch-Buttons. */
+/* Anpassungen für Touch-Geräte und kleine Bildschirme. */
 @media (any-pointer: coarse), (max-width: 760px) {
     body.game-page {
         box-sizing: border-box;
@@ -49,6 +55,9 @@
 
     .game-page #game-stage {
         margin: 0 0 68px;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
     }
 
     .game-page #canvas {
@@ -83,22 +92,16 @@
     .game-page .keyboard-help {
         display: none;
     }
-
-    .game-page #game-stage {
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-    }
 }
 
-/* Im Hochformat verdeckt der Drehhinweis das pausierte Spiel. */
+/* Zeigt im Hochformat den Drehhinweis. */
 @media (orientation: portrait) and (any-pointer: coarse) {
     #rotate-hint {
         display: grid;
     }
 }
 
-/* Querformat nutzt die verfügbare Höhe. Die Tasten liegen nebeneinander. */
+/* Nutzt im Querformat den gesamten verfügbaren Seitenbereich. */
 @media (orientation: landscape) and (any-pointer: coarse) {
     html,
     body.game-page {
@@ -107,7 +110,7 @@
     }
 
     body.game-page {
-        height: 100svh;
+        height: 100dvh;
         padding: 0;
     }
 
@@ -123,17 +126,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
+        width: 100vw;
         max-width: none;
-        height: 100svh;
+        height: 100dvh;
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background: #e49a4b url('img/hintergrund/wueste.jpg') center / cover no-repeat;
     }
 
     .game-page #game-stage,
     .game-page #game-container.fullscreen #game-stage {
-        width: min(100%, calc(100svh * 1.5));
+        width: min(100%, calc(100dvh * 1.5));
         max-width: none;
         margin: 0;
         flex-shrink: 0;

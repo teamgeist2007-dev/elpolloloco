@@ -6,7 +6,10 @@ const gameHelpButton = document.getElementById('game-help-button');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
 
+const restartDelay = 5000;
+
 let restartTimer;
+let restartAt = 0;
 
 gameHelpButton.addEventListener('click', () => {
     gameHelp.showModal();
@@ -21,13 +24,14 @@ gameScreenButton.addEventListener('click', startGameFromScreen);
  */
 function startGameFromScreen() {
     clearTimeout(restartTimer);
+    restartAt = 0;
     gameScreen.hidden = true;
     init();
     gameAudio.focusGame();
 }
 
 /**
- * Zeigt das Endbild und startet nach einer Niederlage automatisch neu.
+ * Zeigt das Endbild und plant nach einer Niederlage den Neustart.
  * @param {boolean} won - Ob der Spieler gewonnen hat.
  */
 function showGameResult(won) {
@@ -38,6 +42,8 @@ function showGameResult(won) {
     gameScreenImage.alt = won ? 'You Win' : 'Game Over';
 
     clearTimeout(restartTimer);
+    restartAt = 0;
+
     gameScreenButton.textContent = 'Neues Spiel starten';
     gameScreenButton.hidden = !won;
     gameHelpButton.hidden = !won;
@@ -47,10 +53,31 @@ function showGameResult(won) {
         gameScreenButton.focus();
         gameAudio.playWinSound();
     } else {
+        restartAt = Date.now() + restartDelay;
+        restartTimer = setTimeout(restartIfReady, restartDelay);
         gameAudio.play('gameLose');
-        restartTimer = setTimeout(startGameFromScreen, 5000);
     }
 }
+
+/**
+ * Startet nach der Wartezeit neu, sobald die Seite sichtbar ist.
+ */
+function restartIfReady() {
+    if (!restartAt || document.hidden) return;
+
+    const remaining = restartAt - Date.now();
+
+    if (remaining > 0) {
+        clearTimeout(restartTimer);
+        restartTimer = setTimeout(restartIfReady, remaining);
+        return;
+    }
+
+    startGameFromScreen();
+}
+
+document.addEventListener('visibilitychange', restartIfReady);
+window.addEventListener('pageshow', restartIfReady);
 
 if (
     (document.fullscreenEnabled && gameContainer.requestFullscreen) ||
