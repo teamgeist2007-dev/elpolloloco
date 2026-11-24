@@ -2,10 +2,13 @@ const gameScreen = document.getElementById('game-screen');
 const gameScreenImage = document.getElementById('game-screen-image');
 const gameScreenButton = document.getElementById('game-screen-button');
 const gameHelp = document.getElementById('game-help');
+const gameHelpButton = document.getElementById('game-help-button');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
 
-document.getElementById('game-help-button').addEventListener('click', () => {
+let restartTimer;
+
+gameHelpButton.addEventListener('click', () => {
     gameHelp.showModal();
     updateGamePause();
 });
@@ -14,16 +17,17 @@ gameHelp.addEventListener('close', updateGamePause);
 gameScreenButton.addEventListener('click', startGameFromScreen);
 
 /**
- * Startet auch nach Sieg oder Niederlage direkt eine neue Runde.
+ * Startet direkt eine neue Runde und beendet einen offenen Neustart-Timer.
  */
 function startGameFromScreen() {
+    clearTimeout(restartTimer);
     gameScreen.hidden = true;
     init();
     gameAudio.focusGame();
 }
 
 /**
- * Zeigt das passende Endbild und spielt den zugehörigen Ton.
+ * Zeigt das Endbild und startet nach einer Niederlage automatisch neu.
  * @param {boolean} won - Ob der Spieler gewonnen hat.
  */
 function showGameResult(won) {
@@ -32,12 +36,20 @@ function showGameResult(won) {
         : 'img/Win and lose/gameOver.png';
 
     gameScreenImage.alt = won ? 'You Win' : 'Game Over';
-    gameScreenButton.textContent = 'Neues Spiel starten';
-    gameScreen.hidden = false;
-    gameScreenButton.focus();
 
-    if (won) gameAudio.playWinSound();
-    else gameAudio.play('gameLose');
+    clearTimeout(restartTimer);
+    gameScreenButton.textContent = 'Neues Spiel starten';
+    gameScreenButton.hidden = !won;
+    gameHelpButton.hidden = !won;
+    gameScreen.hidden = false;
+
+    if (won) {
+        gameScreenButton.focus();
+        gameAudio.playWinSound();
+    } else {
+        gameAudio.play('gameLose');
+        restartTimer = setTimeout(startGameFromScreen, 5000);
+    }
 }
 
 if (

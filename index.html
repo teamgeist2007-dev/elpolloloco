@@ -15,12 +15,16 @@
 
     <title>El Pollo Loco</title>
 
-    <!-- Die Basisklassen werden vor den davon abhängigen Klassen geladen. -->
+    <!-- Die Basisklassen werden zuerst geladen. -->
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
     <script src="models/collectible-object.class.js"></script>
     <script src="models/throwable-object.class.js"></script>
+
+    <!-- Lädt Pepes Animation vor seiner Figurenklasse. -->
+    <script src="models/character-animation.class.js"></script>
     <script src="models/character.class.js"></script>
+
     <script src="models/chicken.class.js"></script>
     <script src="models/cloud.class.js"></script>
     <script src="models/status-bar.class.js"></script>
@@ -86,7 +90,7 @@
                 </div>
             </div>
 
-            <!-- Oben rechts stehen nur Einstellungen und Vollbild. -->
+            <!-- Oben rechts stehen Einstellungen und Vollbild. -->
             <div class="game-toolbar">
                 <details id="music-settings" class="music-settings">
                     <summary title="Einstellungen" aria-label="Einstellungen">⚙</summary>
@@ -118,7 +122,7 @@
         </p>
 
         <footer class="impressum-footer">
-            <a href="impressum.html">Projektinformation</a>
+            <a href="impressum.html">Impressum</a>
         </footer>
 
         <!-- Öffnet die Anleitung über dem Spiel. -->

@@ -229,3 +229,8 @@
     box-sizing: border-box;
     width: min(100%, 720px);
 }
+
+/* Entfernt den Fokusrahmen um das Spielfeld. */
+#canvas:focus {
+    outline: none;
+}
