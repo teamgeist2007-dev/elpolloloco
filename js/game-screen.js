@@ -6,11 +6,6 @@ const gameHelpButton = document.getElementById('game-help-button');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
 
-const restartDelay = 5000;
-
-let restartTimer;
-let restartAt = 0;
-
 gameHelpButton.addEventListener('click', () => {
     gameHelp.showModal();
     updateGamePause();
@@ -20,18 +15,16 @@ gameHelp.addEventListener('close', updateGamePause);
 gameScreenButton.addEventListener('click', startGameFromScreen);
 
 /**
- * Startet direkt eine neue Runde und beendet einen offenen Neustart-Timer.
+ * Startet direkt eine neue Runde und blendet das Menübild aus.
  */
 function startGameFromScreen() {
-    clearTimeout(restartTimer);
-    restartAt = 0;
     gameScreen.hidden = true;
     init();
     gameAudio.focusGame();
 }
 
 /**
- * Zeigt das Endbild und plant nach einer Niederlage den Neustart.
+ * Zeigt das Endbild mit einem Button zum direkten Neustart.
  * @param {boolean} won - Ob der Spieler gewonnen hat.
  */
 function showGameResult(won) {
@@ -40,44 +33,19 @@ function showGameResult(won) {
         : 'img/Win and lose/gameOver.png';
 
     gameScreenImage.alt = won ? 'You Win' : 'Game Over';
-
-    clearTimeout(restartTimer);
-    restartAt = 0;
-
     gameScreenButton.textContent = 'Neues Spiel starten';
-    gameScreenButton.hidden = !won;
+    gameScreenButton.hidden = false;
     gameHelpButton.hidden = !won;
     gameScreen.hidden = false;
 
+    gameScreenButton.focus();
+
     if (won) {
-        gameScreenButton.focus();
         gameAudio.playWinSound();
     } else {
-        restartAt = Date.now() + restartDelay;
-        restartTimer = setTimeout(restartIfReady, restartDelay);
         gameAudio.play('gameLose');
     }
 }
-
-/**
- * Startet nach der Wartezeit neu, sobald die Seite sichtbar ist.
- */
-function restartIfReady() {
-    if (!restartAt || document.hidden) return;
-
-    const remaining = restartAt - Date.now();
-
-    if (remaining > 0) {
-        clearTimeout(restartTimer);
-        restartTimer = setTimeout(restartIfReady, remaining);
-        return;
-    }
-
-    startGameFromScreen();
-}
-
-document.addEventListener('visibilitychange', restartIfReady);
-window.addEventListener('pageshow', restartIfReady);
 
 if (
     (document.fullscreenEnabled && gameContainer.requestFullscreen) ||
