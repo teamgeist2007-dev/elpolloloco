@@ -46,7 +46,7 @@ class WorldItems {
     }
 
     /**
-     * Entfernt eingesammelte Gegenstände und erhöht ihre Zähler.
+     * Entfernt eingesammelte Münzen und Flaschen und erhöht ihre Zähler.
      */
     collectItems() {
         this.world.level.coins = this.world.level.coins.filter((coin) => {
@@ -64,19 +64,40 @@ class WorldItems {
             gameAudio.play('bottleCollect');
             return false;
         });
+
+        this.collectChips();
     }
 
     /**
-     * Prüft, ob Pepe eine Münze oder Flasche berührt.
-     * @param {CollectibleObject} item - Geprüfter Gegenstand.
+     * Heilt Pepe um fünf Prozentpunkte und entfernt eingesammelte Chips.
+     */
+    collectChips() {
+        this.world.level.chips = this.world.level.chips.filter((chip) => {
+            if (!this.touchesCollectible(chip)) return true;
+
+            const character = this.world.character;
+            character.energy = Math.min(100, character.energy + 5);
+
+            this.world.statusBar.setPercentage(character.energy);
+            gameAudio.play('coinCollect');
+            return false;
+        });
+    }
+
+    /**
+     * Prüft die Berührung passend zur Größe des Gegenstands.
+     * @param {CollectibleObject} item - Münze, Flasche oder Chip.
      * @returns {boolean} Ob Pepe den Gegenstand einsammelt.
      */
     touchesCollectible(item) {
         const character = this.world.character;
+        const side = Math.min(20, item.width / 4);
+        const top = Math.min(20, item.height / 4);
+        const bottom = Math.min(12, item.height / 4);
 
-        return character.x + character.width - 12 > item.x + 20 &&
-            character.x + 12 < item.x + item.width - 20 &&
-            character.y + character.height > item.y + 20 &&
-            character.y + 100 < item.y + item.height - 12;
+        return character.x + character.width - 12 > item.x + side &&
+            character.x + 12 < item.x + item.width - side &&
+            character.y + character.height > item.y + top &&
+            character.y + 100 < item.y + item.height - bottom;
     }
 }

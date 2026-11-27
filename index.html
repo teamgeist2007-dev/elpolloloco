@@ -21,15 +21,13 @@
     <script src="models/collectible-object.class.js"></script>
     <script src="models/throwable-object.class.js"></script>
 
-    <!-- Lädt Pepes Animation vor seiner Figurenklasse. -->
     <script src="models/character-animation.class.js"></script>
     <script src="models/character.class.js"></script>
-
     <script src="models/chicken.class.js"></script>
     <script src="models/cloud.class.js"></script>
     <script src="models/status-bar.class.js"></script>
 
-    <!-- Verbindet Zeichnung, Kollisionen und Gegenstände mit der Spielwelt. -->
+    <!-- Lädt die einzelnen Bereiche der Spielwelt. -->
     <script src="models/world-renderer.class.js"></script>
     <script src="models/world-collisions.class.js"></script>
     <script src="models/world-items.class.js"></script>
@@ -39,11 +37,15 @@
     <script src="models/keyboard.class.js"></script>
     <script src="models/level.class.js"></script>
     <script src="models/endboss.class.js"></script>
+
     <script src="models/level1.js"></script>
+    <script src="models/level2.js"></script>
+    <script src="models/level3.js"></script>
     <script src="js/game.js"></script>
 
     <!-- Diese Dateien benötigen die fertig geladenen HTML-Elemente. -->
     <script defer src="js/game-audio.js"></script>
+    <script defer src="js/game-pause.js"></script>
     <script defer src="js/game-screen.js"></script>
 </head>
 
@@ -51,7 +53,6 @@
     <h1>El Pollo Loco</h1>
 
     <section id="game-container">
-        <!-- Hinweis für Touch-Geräte im Hochformat. -->
         <div id="rotate-hint" role="status">
             <span aria-hidden="true">↻</span>
             <p>Bitte drehe dein Gerät ins Querformat.</p>
@@ -60,7 +61,7 @@
         <div id="game-stage">
             <canvas id="canvas" width="720" height="480"></canvas>
 
-            <!-- Startbild und Endbilder liegen über dem Spielfeld. -->
+            <!-- Zeigt Hauptmenü, Levelbilder und Endbilder. -->
             <div id="game-screen">
                 <img id="game-screen-image" src="img/startscreen/startScreen.png" alt="El Pollo Loco">
 
@@ -75,7 +76,7 @@
                 </div>
             </div>
 
-            <!-- Links wird gelaufen, rechts gesprungen und geworfen. -->
+            <!-- Touch-Steuerung. -->
             <div class="mobile-controls">
                 <div>
                     <button id="btnLeft" type="button" aria-label="Nach links laufen">‹</button>
@@ -90,8 +91,17 @@
                 </div>
             </div>
 
-            <!-- Oben rechts stehen Einstellungen und Vollbild. -->
+            <!-- Wird während der manuellen Pause eingeblendet. -->
+            <div id="pause-screen" role="dialog" aria-labelledby="pause-title" hidden>
+                <h2 id="pause-title">Pause</h2>
+                <button id="resume-button" type="button">Weiterspielen</button>
+            </div>
+
+            <!-- Pause, Einstellungen und Vollbild. -->
             <div class="game-toolbar">
+                <button id="pause-button" type="button" title="Spiel pausieren (P)" aria-label="Spiel pausieren (P)"
+                    aria-pressed="false" hidden>⏸</button>
+
                 <details id="music-settings" class="music-settings">
                     <summary title="Einstellungen" aria-label="Einstellungen">⚙</summary>
 
@@ -119,40 +129,35 @@
             <span><kbd>←</kbd> <kbd>→</kbd> Laufen</span>
             <span><kbd>Leertaste</kbd> Springen</span>
             <span><kbd>D</kbd> Flasche werfen</span>
+            <span><kbd>P</kbd> Pause</span>
         </p>
 
         <footer class="impressum-footer">
             <a href="impressum.html">Impressum</a>
         </footer>
 
-        <!-- Öffnet die Anleitung über dem Spiel. -->
+        <!-- Kurze Spielanleitung. -->
         <dialog id="game-help" aria-labelledby="game-help-title">
             <h2 id="game-help-title">So spielst du</h2>
 
+            <p>Sammle Münzen und Flaschen und besiege die Endbosse.</p>
+
             <ul>
-                <li>
-                    <strong>Sammeln.</strong> Berühre Münzen und Flaschen, um sie einzusammeln.
-                    Im Level liegen 10 Münzen und 6 Flaschen.
-                </li>
-                <li>
-                    <strong>Hühner besiegen.</strong> Spring von oben auf ein Huhn
-                    oder triff es mit einer Flasche. Seitliche Berührungen kosten Leben.
-                </li>
-                <li>
-                    <strong>Endboss besiegen.</strong> Heb dir fünf Flaschen für ihn auf.
-                    Mit fünf Treffern gewinnst du.
-                </li>
+                <li>Hühner: Von oben draufspringen.</li>
+                <li>Endbosse: Mit Flaschen besiegen.</li>
+                <li>Tortilla-Chips: Geben dir 5 % Leben zurück.</li>
             </ul>
 
             <p>
-                Mit <kbd>←</kbd> und <kbd>→</kbd> läufst du,
-                mit der <kbd>Leertaste</kbd> springst du und mit <kbd>D</kbd> wirfst du.
-                Auf dem Handy nutzt du die Pfeiltasten und den Flaschenbutton.
+                <kbd>←</kbd> <kbd>→</kbd> Laufen<br>
+                <kbd>Leertaste</kbd> Springen<br>
+                <kbd>D</kbd> Flasche werfen<br>
+                <kbd>P</kbd> Pause / Weiterspielen
             </p>
 
             <p>
-                Über das Zahnrad öffnest du die Einstellungen.
-                Dort schaltest du alle Töne ein oder aus und regelst die Hintergrundmusik.
+                Über das Zahnrad schaltest du den Ton ein oder aus
+                und regelst die Musiklautstärke. Mit ⏸ pausierst du das Spiel.
             </p>
 
             <form method="dialog">

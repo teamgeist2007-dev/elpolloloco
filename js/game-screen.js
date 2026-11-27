@@ -5,6 +5,12 @@ const gameHelp = document.getElementById('game-help');
 const gameHelpButton = document.getElementById('game-help-button');
 const gameContainer = document.getElementById('game-container');
 const fullscreenButton = document.getElementById('fullscreen-button');
+const screenDelay = 2500;
+
+let screenMode = 'menu';
+let nextLevel = 1;
+let savedProgress = null;
+let levelTimer;
 
 gameHelpButton.addEventListener('click', () => {
     gameHelp.showModal();
@@ -12,39 +18,95 @@ gameHelpButton.addEventListener('click', () => {
 });
 
 gameHelp.addEventListener('close', updateGamePause);
-gameScreenButton.addEventListener('click', startGameFromScreen);
+gameScreenButton.addEventListener('click', handleScreenButton);
 
 /**
- * Startet direkt eine neue Runde und blendet das Menübild aus.
+ * Zeigt beim ersten Start das Levelbild und startet sonst die nächste Runde.
+ */
+function handleScreenButton() {
+    if (screenMode === 'win') return;
+
+    if (screenMode === 'menu') {
+        gameAudio.prepareMusicVolume();
+        showLevelIntro(1);
+    } else {
+        startGameFromScreen();
+    }
+}
+
+/**
+ * Zeigt das Levelbild. Level 1 startet automatisch, weitere Level über Weiter.
+ * @param {number} levelNumber - Nummer des folgenden Levels.
+ */
+function showLevelIntro(levelNumber) {
+    clearTimeout(levelTimer);
+    nextLevel = levelNumber;
+    screenMode = 'intro';
+    gameScreenImage.src = `img/levelStarts/Level ${levelNumber}_ Start.png`;
+    gameScreenImage.alt = `Level ${levelNumber}`;
+    gameScreenButton.textContent = 'Weiter';
+    gameScreenButton.hidden = levelNumber === 1;
+    gameHelpButton.hidden = true;
+    gameScreen.hidden = false;
+
+    if (levelNumber === 1) {
+        levelTimer = setTimeout(startGameFromScreen, screenDelay);
+    } else {
+        gameScreenButton.focus();
+    }
+}
+
+/**
+ * Startet das gewählte Level direkt mit den gespeicherten Werten.
  */
 function startGameFromScreen() {
+    clearTimeout(levelTimer);
+    screenMode = 'playing';
     gameScreen.hidden = true;
-    init();
+    init(nextLevel, savedProgress);
+    savedProgress = null;
     gameAudio.focusGame();
 }
 
 /**
- * Zeigt das Endbild mit einem Button zum direkten Neustart.
- * @param {boolean} won - Ob der Spieler gewonnen hat.
+ * Zeigt das Ergebnis. Nach einer Niederlage startet das Spiel nach 2,5 Sekunden neu.
+ * @param {boolean} won - Ob der Spieler den Endboss besiegt hat.
  */
 function showGameResult(won) {
+    clearTimeout(levelTimer);
+    resetGamePause();
+
+    const hasNextLevel = won && currentLevel < 3;
+
+    screenMode = hasNextLevel ? 'win' : 'result';
+    nextLevel = hasNextLevel ? currentLevel + 1 : 1;
+
+    savedProgress = hasNextLevel ? {
+        energy: world.character.energy,
+        coins: world.coins,
+        bottles: world.bottles
+    } : null;
+
     gameScreenImage.src = won
         ? 'img/Win and lose/youWin.png'
         : 'img/Win and lose/gameOver.png';
 
     gameScreenImage.alt = won ? 'You Win' : 'Game Over';
-    gameScreenButton.textContent = 'Neues Spiel starten';
-    gameScreenButton.hidden = false;
-    gameHelpButton.hidden = !won;
+    gameScreenButton.textContent = hasNextLevel ? 'Weiter' : 'Neues Spiel starten';
+    gameScreenButton.hidden = hasNextLevel || !won;
+    gameHelpButton.hidden = !won || hasNextLevel;
     gameScreen.hidden = false;
 
-    gameScreenButton.focus();
-
-    if (won) {
-        gameAudio.playWinSound();
+    if (hasNextLevel) {
+        levelTimer = setTimeout(() => showLevelIntro(nextLevel), screenDelay);
+    } else if (!won) {
+        levelTimer = setTimeout(startGameFromScreen, 2500);
     } else {
-        gameAudio.play('gameLose');
+        gameScreenButton.focus();
     }
+
+    if (won) gameAudio.playWinSound();
+    else gameAudio.play('gameLose');
 }
 
 if (
@@ -63,8 +125,8 @@ if (
 }
 
 /**
- * Wechselt zwischen normaler Ansicht und Vollbild.
- * @returns {Promise<void>} Abschluss des Vollbildwechsels.
+ * Schaltet zwischen normaler Ansicht und Vollbild um.
+ * @returns {Promise<void>} Wird beendet, sobald der Vollbildwechsel verarbeitet wurde.
  */
 async function toggleFullscreen() {
     try {
@@ -89,16 +151,16 @@ async function toggleFullscreen() {
 }
 
 /**
- * Aktualisiert das Symbol und die Beschriftung des Vollbildbuttons.
+ * Passt das Layout und die Beschriftung des Vollbildbuttons an.
  */
 function updateFullscreenButton() {
-    const fullscreenElement = document.fullscreenElement ||
-        document.webkitFullscreenElement;
-
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
     const isFullscreen = fullscreenElement === gameContainer;
+
     gameContainer.classList.toggle('fullscreen', isFullscreen);
 
     const label = isFullscreen ? 'Vollbild beenden' : 'Vollbild';
+
     fullscreenButton.textContent = isFullscreen ? '✕' : '⛶';
     fullscreenButton.title = label;
     fullscreenButton.setAttribute('aria-label', label);

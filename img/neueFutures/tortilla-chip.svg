@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+    <!-- Abgerundeter Chip mit kräftiger Außenkontur. -->
+    <path d="M56 19 Q63 9 71 20 L114 95 Q122 110 105 112 L23 110 Q7 110 15 95 Z"
+        fill="#ffc94a" stroke="#713b18" stroke-width="5" stroke-linejoin="round"/>
+
+    <!-- Helle Kante und leicht gerösteter unterer Rand. -->
+    <path d="M60 28 L25 94" fill="none" stroke="#fff1a7"
+        stroke-width="5" stroke-linecap="round"/>
+    <path d="M24 102 Q64 107 106 103" fill="none" stroke="#cf771e"
+        stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Kleine Röststellen auf der Oberfläche. -->
+    <g fill="#bb7025">
+        <ellipse cx="59" cy="44" rx="3" ry="2" transform="rotate(-25 59 44)"/>
+        <ellipse cx="49" cy="67" rx="4" ry="2.5" transform="rotate(25 49 67)"/>
+        <ellipse cx="76" cy="61" rx="2.5" ry="3.5" transform="rotate(-25 76 61)"/>
+        <ellipse cx="65" cy="88" rx="4" ry="2.5" transform="rotate(-20 65 88)"/>
+        <ellipse cx="92" cy="88" rx="3" ry="2"/>
+        <circle cx="37" cy="91" r="2"/>
+    </g>
+    <g fill="#fff0a1">
+        <circle cx="60" cy="58" r="2"/>
+        <circle cx="80" cy="80" r="2.5"/>
+        <circle cx="51" cy="92" r="1.5"/>
+    </g>
+</svg>

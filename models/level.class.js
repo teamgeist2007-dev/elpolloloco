@@ -1,5 +1,5 @@
 /**
- * Speichert die Objekte, die zu einem Level gehören.
+ * Speichert Gegner, Hintergrund und Gegenstände eines Levels.
  */
 class Level {
     enemies;
@@ -7,15 +7,14 @@ class Level {
     backgroundObjects;
     coins;
     bottles;
-
-    // Rechte Grenze für Pepes Bewegung.
+    chips = [];
     level_end_x = 2250;
 
     /**
-     * Übernimmt Gegner, Landschaft und Sammelobjekte.
+     * Übernimmt die Listen für den Aufbau eines Levels.
      * @param {MovableObject[]} enemies - Hühner und Endboss.
      * @param {Cloud[]} clouds - Wolken des Levels.
-     * @param {BackgroundObject[]} backgroundObjects - Ebenen der Landschaft.
+     * @param {BackgroundObject[]} backgroundObjects - Hintergrundebenen.
      * @param {CollectibleObject[]} [coins=[]] - Münzen im Level.
      * @param {CollectibleObject[]} [bottles=[]] - Flaschen im Level.
      */

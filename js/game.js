@@ -2,6 +2,7 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 let mobileControlsBound = false;
+let currentLevel = 1;
 
 const portraitScreen = window.matchMedia(
     '(orientation: portrait) and (any-pointer: coarse)'
@@ -17,15 +18,24 @@ const gameKeys = {
 };
 
 /**
- * Baut eine neue Runde auf und verbindet die Steuerung.
+ * Baut das gewählte Level auf und übernimmt bisherige Werte.
+ * @param {number} [levelNumber=1] - Nummer des Levels.
+ * @param {{energy: number, coins: number, bottles: number}|null} [progress=null] - Mitgenommene Werte.
  */
-function init() {
+function init(levelNumber = 1, progress = null) {
     world?.stop();
+    resetGamePause();
     keyboard = new Keyboard();
     canvas = document.getElementById('canvas');
+    currentLevel = levelNumber;
 
     initLevel();
-    world = new World(canvas, keyboard);
+
+    let level = level1;
+    if (levelNumber >= 2) level = initLevel2(level);
+    if (levelNumber === 3) level = initLevel3(level);
+
+    world = new World(canvas, keyboard, level, progress);
 
     if (!mobileControlsBound) {
         bindMobileControls();
@@ -49,7 +59,7 @@ window.addEventListener('keyup', (event) => {
 });
 
 /**
- * Verbindet die vier Touch-Buttons mit den Spielaktionen.
+ * Verbindet die Touch-Buttons mit den Spielaktionen.
  */
 function bindMobileControls() {
     bindMobileButton('btnLeft', 'LEFT');
@@ -87,18 +97,19 @@ function bindMobileButton(id, key) {
 }
 
 /**
- * Pausiert das Spiel im Hochformat, im Hintergrund oder in der Anleitung.
+ * Verbindet die manuelle Pause mit Hochformat, Hintergrund und Anleitung.
  */
 function updateGamePause() {
     if (!world || world.gameFinished) return;
 
-    world.paused = portraitScreen.matches || document.hidden ||
-        document.getElementById('game-help').open;
+    world.paused = manuallyPaused || portraitScreen.matches ||
+        document.hidden || document.getElementById('game-help').open;
 
     world.keyboard = keyboard = new Keyboard();
     gameAudio.setLoop('characterRun', false);
     gameAudio.setLoop('characterSnoring', false);
     gameAudio.updateMusic();
+    updatePauseUI();
 }
 
 portraitScreen.addEventListener('change', updateGamePause);

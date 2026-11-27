@@ -4,12 +4,15 @@
 class WorldRenderer {
     /**
      * Merkt sich den Zeichenbereich und lädt die Anzeigebilder.
-     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich des Spielfelds.
+     * @param {CanvasRenderingContext2D} ctx - Zeichenbereich.
      */
     constructor(ctx) {
         this.ctx = ctx;
         this.coinIcon = this.createInventoryIcon('img/8_coin/coin_1.png', 260);
-        this.bottleIcon = this.createInventoryIcon('img/6_salsa_bottle/salsa_bottle.png', 350);
+        this.bottleIcon = this.createInventoryIcon(
+            'img/6_salsa_bottle/salsa_bottle.png',
+            350
+        );
     }
 
     /**
@@ -28,6 +31,7 @@ class WorldRenderer {
         this.addObjectsToMap(level.enemies);
         this.addObjectsToMap(level.coins);
         this.addObjectsToMap(level.bottles);
+        this.addObjectsToMap(level.chips);
         this.addObjectsToMap(world.throwableObjects);
 
         this.ctx.translate(-camera_x, 0);
@@ -42,7 +46,7 @@ class WorldRenderer {
      * Erstellt ein fest positioniertes Anzeigesymbol.
      * @param {string} path - Bildpfad.
      * @param {number} x - Horizontale Position.
-     * @returns {DrawableObject} Symbol mit Position und Größe.
+     * @returns {DrawableObject} Fertiges Symbol.
      */
     createInventoryIcon(path, x) {
         const icon = new DrawableObject();
@@ -73,7 +77,7 @@ class WorldRenderer {
 
     /**
      * Zeichnet Hintergrund, Bildausschnitt und Anzahl eines Gegenstands.
-     * @param {DrawableObject} icon - Bild des Gegenstands.
+     * @param {DrawableObject} icon - Anzeigebild.
      * @param {number} count - Angezeigte Anzahl.
      */
     drawInventoryItem(icon, count) {
@@ -112,7 +116,7 @@ class WorldRenderer {
 
     /**
      * Zeichnet ein geladenes Objekt und spiegelt es bei Bedarf.
-     * @param {DrawableObject} object - Zu zeichnendes Objekt.
+     * @param {DrawableObject} object - Einzelnes Spielobjekt.
      */
     addToMap(object) {
         if (!object.img.complete || object.img.naturalWidth === 0) return;

@@ -3,7 +3,7 @@
  */
 class World {
     character = new Character();
-    level = level1;
+    level;
     camera_x = 0;
     statusBar = new StatusBar();
     throwableObjects = [];
@@ -13,20 +13,30 @@ class World {
     bottles = 0;
 
     /**
-     * Verbindet die einzelnen Spielbereiche und startet die Runde.
+     * Startet die Spielwelt und übernimmt gegebenenfalls bisherige Werte.
      * @param {HTMLCanvasElement} canvas - Spielfläche.
      * @param {Keyboard} keyboard - Zustand der Spieltasten.
+     * @param {Level} level - Aufbau des aktuellen Levels.
+     * @param {{energy: number, coins: number, bottles: number}|null} [progress=null] - Mitgenommene Werte.
      */
-    constructor(canvas, keyboard) {
+    constructor(canvas, keyboard, level, progress = null) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
+        this.level = level;
 
         this.renderer = new WorldRenderer(this.ctx);
         this.collisions = new WorldCollisions(this);
         this.items = new WorldItems(this);
-
         this.character.world = this;
+
+        if (progress) {
+            this.character.energy = progress.energy;
+            this.coins = progress.coins;
+            this.bottles = progress.bottles;
+        }
+
+        this.statusBar.setPercentage(this.character.energy);
         gameAudio.startRound(this);
         this.draw();
     }
@@ -53,8 +63,8 @@ class World {
     }
 
     /**
-     * Beendet die Runde und zeigt das passende Endbild.
-     * @param {boolean} won - Ob der Spieler gewonnen hat.
+     * Beendet die Runde und öffnet das folgende Bild.
+     * @param {boolean} won - Ob der Endboss besiegt wurde.
      */
     finishGame(won) {
         if (this.gameFinished) return;
@@ -65,7 +75,7 @@ class World {
     }
 
     /**
-     * Berechnet Pepes Trefferfläche ohne die transparenten Bildränder.
+     * Berechnet Pepes Trefferfläche ohne transparente Bildränder.
      * @returns {{left: number, right: number, top: number, bottom: number}} Trefferfläche.
      */
     getCharacterHitbox() {
@@ -97,7 +107,7 @@ class World {
     }
 
     /**
-     * Stoppt alle Bewegungen und Timer der alten Runde.
+     * Beendet alle Bewegungen und Timer der alten Runde.
      */
     stop() {
         this.gameFinished = true;

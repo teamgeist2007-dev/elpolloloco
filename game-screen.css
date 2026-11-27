@@ -1,4 +1,4 @@
-/* Hält Spielfeld und Start- beziehungsweise Endbilder an derselben Stelle. */
+/* Hält Spielfeld und Menübilder an derselben Stelle. */
 #game-stage {
     position: relative;
     width: fit-content;
@@ -6,7 +6,12 @@
     margin-inline: auto;
 }
 
-/* Legt das Start- oder Endbild über das Spielfeld. */
+/* Entfernt den Fokusrahmen um das Spielfeld. */
+#canvas:focus {
+    outline: none;
+}
+
+/* Legt Start-, Level- und Endbilder über das Spielfeld. */
 #game-screen {
     position: absolute;
     inset: 0;
@@ -51,7 +56,7 @@
     outline-offset: 3px;
 }
 
-/* Gestaltet das Fenster mit der Spielanleitung. */
+/* Gestaltet die Spielanleitung. */
 #game-help {
     box-sizing: border-box;
     width: min(calc(100% - 32px), 520px);
@@ -88,14 +93,15 @@
     text-align: center;
 }
 
-/* Zwei kleine Symbole oben rechts im Spielfeld. */
+/* Kleine Steuersymbole oben rechts. */
 .game-toolbar {
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 2;
-    display: flex;
-    align-items: flex-start;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 32px 32px;
+    align-items: start;
     gap: 5px;
 }
 
@@ -126,7 +132,7 @@
     outline-offset: 2px;
 }
 
-/* Das Zahnrad öffnet die Einstellungen unter den Symbolen. */
+/* Das Zahnrad öffnet die Toneinstellungen. */
 .music-settings {
     position: relative;
 }
@@ -160,7 +166,6 @@
     font-size: 17px;
 }
 
-/* Der Tonschalter steht ausschließlich im geöffneten Menü. */
 #sound-toggle {
     width: 100%;
     min-height: 36px;
@@ -192,19 +197,27 @@
     font-size: 12px;
 }
 
-/* Bei wenig Platz stehen die kleinen Symbole untereinander. */
+#fullscreen-button {
+    grid-column: 2;
+}
+
+/* Auf kleinen Bildschirmen stehen die Symbole untereinander. */
 @media (max-width: 600px), (max-height: 480px) {
     .game-toolbar {
-        flex-direction: column;
+        grid-template-columns: 32px;
+    }
+
+    #fullscreen-button {
+        grid-column: 1;
     }
 }
 
-/* Vollbild erscheint nur, wenn der Browser es unterstützt. */
-#fullscreen-button[hidden] {
+/* Versteckt momentan nicht benötigte Steuersymbole. */
+.game-toolbar > button[hidden] {
     display: none;
 }
 
-/* Zentriert das Spiel im Vollbild. */
+/* Gestaltet den Vollbildbereich. */
 #game-container.fullscreen {
     box-sizing: border-box;
     display: flex;
@@ -230,7 +243,42 @@
     width: min(100%, 720px);
 }
 
-/* Entfernt den Fokusrahmen um das Spielfeld. */
-#canvas:focus {
-    outline: none;
+/* Verdeckt das angehaltene Spiel mit dem Pause-Fenster. */
+#pause-screen {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgba(48, 32, 22, 0.75);
+    color: #fff3dd;
+    font-family: Arial, sans-serif;
+}
+
+#pause-screen[hidden] {
+    display: none;
+}
+
+#pause-screen h2 {
+    margin: 0;
+    font-size: 36px;
+}
+
+#resume-button {
+    min-height: 44px;
+    padding: 8px 18px;
+    border: 2px solid #302016;
+    border-radius: 8px;
+    background: #ffd27a;
+    color: #302016;
+    font: bold 16px Arial, sans-serif;
+    cursor: pointer;
+}
+
+#resume-button:focus-visible {
+    outline: 2px solid #fff3dd;
+    outline-offset: 3px;
 }
